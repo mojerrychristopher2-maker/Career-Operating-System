@@ -1,0 +1,10 @@
+{
+  "name": "mojerry-career-os",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first career opportunity and application workflow dashboard.",
+  "scripts": {
+    "start": "python -m http.server 5173",
+    "dev": "python -m http.server 5173"
+  }
+}

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mojerry Career OS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">M</span><span>MOJERRY<small>CAREER OS / v2.0</small></span></div>
+      <nav>
+        <button class="nav-item active" data-view="command"><span>⌘</span>Command centre</button>
+        <button class="nav-item" data-view="opportunities"><span>◈</span>Opportunities <b id="jobCount">03</b></button>
+        <button class="nav-item" data-view="applications"><span>▣</span>Applications</button>
+        <button class="nav-item" data-view="profile"><span>◉</span>Career profile</button>
+        <button class="nav-item" data-view="insights"><span>↗</span>Performance</button>
+      </nav>
+      <div class="sidebar-bottom"><div class="autonomy"><i></i><span>AUTONOMY</span><strong>Assisted</strong></div><p>Submissions always require your approval.</p></div>
+    </aside>
+    <main>
+      <header><div><p class="eyebrow">MONDAY, 20 JULY</p><h1>Good morning, Mojerry.</h1><p class="subhead">Your career agent has a focused pipeline ready.</p></div><button id="newJob" class="button primary">+ Analyse opportunity</button></header>
+
+      <section class="view active" id="command">
+        <div class="mission"><div><p class="eyebrow">CAREER MISSION</p><h2>Find the right work.<br><em>Make every application count.</em></h2></div><div class="mission-stats"><div><strong id="applicationsCount">0</strong><span>Applications</span></div><div><strong id="interviewCount">0</strong><span>Interviews</span></div><div><strong>95+</strong><span>ATS target</span></div></div></div>
+        <div class="section-title"><div><p class="eyebrow">PRIORITY QUEUE</p><h2>Best matches today</h2></div><button class="text-button" data-view-target="opportunities">View all opportunities →</button></div>
+        <div class="job-grid" id="priorityJobs"></div>
+        <div class="two-col">
+          <section class="panel activity"><div class="panel-heading"><div><p class="eyebrow">AGENT ACTIVITY</p><h2>Operating log</h2></div><span class="live"><i></i> LIVE</span></div><div id="activityLog"></div></section>
+          <section class="panel next"><p class="eyebrow">NEXT BEST ACTION</p><h2 id="nextTitle">Add your career profile</h2><p id="nextText">Give the agent your real experience and target roles before it tailors applications.</p><button class="button dark" data-view-target="profile">Complete profile →</button></section>
+        </div>
+      </section>
+
+      <section class="view" id="opportunities"><div class="section-title"><div><p class="eyebrow">DISCOVERY & INTELLIGENCE</p><h2>Opportunity pipeline</h2></div><button class="button primary" id="newJob2">+ Analyse opportunity</button></div><div class="filter-row"><button class="chip selected">All</button><button class="chip">Apply</button><button class="chip">Maybe</button><button class="chip">Skip</button></div><div class="table-wrap"><table><thead><tr><th>ROLE / COMPANY</th><th>FIT</th><th>ATS</th><th>DECISION</th><th></th></tr></thead><tbody id="jobsTable"></tbody></table></div></section>
+      <section class="view" id="applications"><div class="section-title"><div><p class="eyebrow">APPLICATION MEMORY</p><h2>Application tracker</h2></div></div><div class="empty-state" id="applicationEmpty"><div>▣</div><h2>No applications yet</h2><p>Analyse a strong opportunity, then prepare truthful tailored documents.</p><button class="button primary" data-view-target="opportunities">Open opportunities</button></div><div class="table-wrap hidden" id="applicationTable"><table><thead><tr><th>ROLE / COMPANY</th><th>APPLIED</th><th>STATUS</th><th>FOLLOW-UP</th></tr></thead><tbody id="applicationsTable"></tbody></table></div></section>
+      <section class="view" id="profile"><div class="section-title"><div><p class="eyebrow">SOURCE OF TRUTH</p><h2>Career profile</h2><p class="subhead">Only facts here are used in tailored resumes and cover letters.</p></div></div><form id="profileForm" class="profile-form"><label>Professional headline<input name="headline" placeholder="e.g. Data Analyst | BI & Automation" /></label><label>Target roles<input name="roles" placeholder="e.g. Data Analyst, Business Intelligence Analyst" /></label><label>Years of experience<input name="experience" type="number" min="0" placeholder="0" /></label><label>Core skills<textarea name="skills" placeholder="SQL, Power BI, Python, Excel…"></textarea></label><label>Experience & achievements<textarea name="achievements" placeholder="Add real roles, projects, results and qualifications. Never include anything you cannot verify."></textarea></label><button class="button primary" type="submit">Save truthful profile</button></form></section>
+      <section class="view" id="insights"><div class="section-title"><div><p class="eyebrow">SELF-LEARNING</p><h2>Performance intelligence</h2></div></div><div class="metrics"><div class="metric"><span>Applications</span><strong id="metricApps">0</strong></div><div class="metric"><span>Interview rate</span><strong>—</strong></div><div class="metric"><span>Average ATS</span><strong id="metricAts">—</strong></div></div><div class="empty-insight"><p>The agent will identify winning keywords, industries and resume patterns once outcomes are recorded.</p></div></section>
+    </main>
+  </div>
+  <div class="modal-backdrop hidden" id="jobModal"><div class="modal"><button class="close" data-close>×</button><p class="eyebrow">OPPORTUNITY INTAKE</p><h2>Let the agent assess a role</h2><p>Paste a job description. It will extract priorities, calculate a transparent fit score, and recommend an action.</p><form id="jobForm"><label>Job title<input required name="title" placeholder="e.g. Business Intelligence Analyst" /></label><label>Company<input required name="company" placeholder="Company name" /></label><label>Job description<textarea required name="description" placeholder="Paste the complete job description here…"></textarea></label><button class="button primary" type="submit">Run job intelligence →</button></form></div></div>
+  <div class="modal-backdrop hidden" id="detailModal"><div class="modal detail-modal"><button class="close" data-close>×</button><div id="jobDetail"></div></div></div>
+  <script src="app.js"></script>
+</body>
+</html>
