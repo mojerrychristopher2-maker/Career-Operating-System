@@ -1,42 +1,19 @@
 from pathlib import Path
-from dotenv import load_dotenv
-import os
 
-# Load environment variables
-load_dotenv()
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Project root folder
-BASE_DIR = Path(__file__).resolve().parent.parent
+OUTPUT_DIR = PROJECT_ROOT / "output"
 
-# Environment variables
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+RESUME_DIR = OUTPUT_DIR / "resumes"
 
-# Database
-DATABASE_PATH = BASE_DIR / "career_os.db"
+COVER_LETTER_DIR = OUTPUT_DIR / "cover_letters"
 
-# Data
-PROFILE_PATH = BASE_DIR / "profile.json"
-JOBS_PATH = BASE_DIR / "jobs.json"
+LOG_DIR = OUTPUT_DIR / "logs"
 
-# Output folders
-OUTPUT_FOLDER = BASE_DIR / "output"
-RESUME_FOLDER = OUTPUT_FOLDER / "resumes"
-COVER_LETTER_FOLDER = OUTPUT_FOLDER / "cover_letters"
+APPLICATION_DIR = OUTPUT_DIR / "applications"
 
-# Logging
-LOG_FOLDER = BASE_DIR / "logs"
+RESUME_FILENAME = "Resume.docx"
 
-# AI Model
-MODEL = "gpt-5.5"
+COVER_LETTER_FILENAME = "CoverLetter.docx"
 
-# Job Search Settings
-MIN_MATCH_SCORE = 80
-
-TARGET_JOB_SITES = [
-    "LinkedIn",
-    "Indeed",
-    "PNet",
-    "Careers24",
-    "OfferZen",
-    "Glassdoor",
-]
+MATCH_THRESHOLD = 70

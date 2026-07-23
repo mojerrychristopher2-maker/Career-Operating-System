@@ -4,11 +4,27 @@ from modules.intelligence.job_parser import JobParser
 from modules.intelligence.candidate_scorer import CandidateScorer
 from modules.intelligence.decision_engine import DecisionEngine
 
+from modules.builder.resume_builder import ResumeBuilder
+from modules.documents.resume_writer import ResumeWriter
+
+from modules.cover_letter.cover_letter_engine import CoverLetterEngine
+from modules.documents.cover_letter_writer import CoverLetterWriter
+
+from core.profile_manager import ProfileManager
+
 
 class CareerOrchestrator:
 
     def __init__(self):
 
+        self.profile = ProfileManager()
+
+        self.resume_builder = ResumeBuilder()
+        self.resume_writer = ResumeWriter()
+
+        self.cover_engine = CoverLetterEngine()
+        self.cover_writer = CoverLetterWriter()
+        
         self.profile = ProfileManager()
 
         self.parser = JobParser()
@@ -55,44 +71,86 @@ class CareerOrchestrator:
 
         }
 
-def evaluate_job(self, job_description):
+    def evaluate_job(self, job_description):
 
-    parsed = self.parser.parse(job_description)
+        parsed = self.parser.parse(job_description)
 
-    job = {
+        job = {
 
-        "title": "Unknown",
+            "title": "Unknown",
 
-        "skills": (
+            "skills": (
 
-            parsed["required"]
+                parsed["required"]
 
-            + parsed["preferred"]
+                + parsed["preferred"]
 
-            + parsed["bonus"]
+                + parsed["bonus"]
+
+            )
+
+        }
+
+        score = self.scorer.score(
+
+            self.profile.get_all(),
+
+            job
 
         )
 
-    }
+        decision = self.decision.evaluate(
 
-    score = self.scorer.score(
+            score["overall_score"]
 
-        self.profile.get_all(),
+        )
 
-        job
+        return {
 
-    )
+            "score": score,
 
-    decision = self.decision.evaluate(
+            "decision": decision
 
-        score["overall_score"]
+        }
 
-    )
+    def generate_documents(self, job):
 
-    return {
+        profile = self.profile.get_all()
 
-        "score": score,
+        resume = self.resume_builder.build(
 
-        "decision": decision
+            job,
 
-    }
+            profile
+
+        )
+
+        self.resume_writer.create(
+
+            resume
+
+        )
+
+        cover_letter = self.cover_engine.build(
+
+            profile,
+
+            job,
+
+            resume["resume_plan"]
+
+        )
+
+        self.cover_writer.create(
+
+            cover_letter
+
+        )
+
+        return {
+
+            "resume": "Created",
+
+            "cover_letter": "Created"
+
+        }

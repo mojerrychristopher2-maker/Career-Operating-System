@@ -1,10 +1,27 @@
 from docx import Document
 from docx.shared import Pt
 
+from config.settings import (
+    RESUME_DIR,
+    RESUME_FILENAME
+)
+
 
 class ResumeWriter:
 
-    def create(self, resume_data, output_file="Resume.docx"):
+    def create(self, resume_data, output_file=None):
+
+        if output_file is None:
+
+            RESUME_DIR.mkdir(
+
+                parents=True,
+
+                exist_ok=True
+
+            )
+
+            output_file = RESUME_DIR / RESUME_FILENAME
 
         document = Document()
 

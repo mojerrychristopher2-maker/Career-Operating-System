@@ -1,5 +1,5 @@
 from core.profile_manager import ProfileManager
-from modules.tailoring.resume_engine import ResumeEngine
+from core.logger import logger
 
 
 class ResumeBuilder:
@@ -8,10 +8,15 @@ class ResumeBuilder:
         self.profile = ProfileManager()
 
     def build(self, job, profile=None):
+        logger.info("Building tailored resume...")
 
         if profile is None:
 
             profile = self.profile.get_all()
+
+        logger.success(
+            f"Resume object created for {profile['name']}"
+        )
 
         return {
 
