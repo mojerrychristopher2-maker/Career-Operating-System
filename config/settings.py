@@ -1,19 +1,30 @@
+from dataclasses import dataclass
 from pathlib import Path
+
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-OUTPUT_DIR = PROJECT_ROOT / "output"
 
-RESUME_DIR = OUTPUT_DIR / "resumes"
+@dataclass
+class Settings:
 
-COVER_LETTER_DIR = OUTPUT_DIR / "cover_letters"
+    database: Path = PROJECT_ROOT / "data" / "career_os.db"
 
-LOG_DIR = OUTPUT_DIR / "logs"
+    output_dir: Path = PROJECT_ROOT / "output"
 
-APPLICATION_DIR = OUTPUT_DIR / "applications"
+    resume_dir: Path = output_dir / "resumes"
 
-RESUME_FILENAME = "Resume.docx"
+    cover_letter_dir: Path = output_dir / "cover_letters"
 
-COVER_LETTER_FILENAME = "CoverLetter.docx"
+    application_dir: Path = output_dir / "applications"
 
-MATCH_THRESHOLD = 70
+    log_dir: Path = output_dir / "logs"
+
+    resume_filename: str = "Resume.docx"
+
+    cover_letter_filename: str = "CoverLetter.docx"
+
+    match_threshold: int = 70
+
+
+settings = Settings()

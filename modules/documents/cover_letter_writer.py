@@ -1,10 +1,7 @@
 from docx import Document
 from docx.shared import Pt
 
-from config.settings import (
-    COVER_LETTER_DIR,
-    COVER_LETTER_FILENAME
-)
+from config.settings import settings
 
 
 class CoverLetterWriter:
@@ -13,7 +10,7 @@ class CoverLetterWriter:
 
         if output_file is None:
 
-            COVER_LETTER_DIR.mkdir(
+            settings.cover_letter_dir.mkdir(
 
                 parents=True,
 
@@ -21,7 +18,7 @@ class CoverLetterWriter:
 
             )
 
-            output_file = COVER_LETTER_DIR / COVER_LETTER_FILENAME
+            output_file = settings.cover_letter_dir / settings.cover_letter_filename
 
         document = Document()
 

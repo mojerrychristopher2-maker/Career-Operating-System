@@ -1,19 +1,36 @@
-from database.application_repository import ApplicationRepository
+from agent.store import Store
+from config.settings import settings
 
-repository = ApplicationRepository()
+from modules.repository.application_repository import ApplicationRepository
 
-repository.save(
 
-    "Microsoft",
+store = Store(settings.database)
 
-    "Business Intelligence Analyst",
+repository = ApplicationRepository(store)
 
-    82,
 
-    True
+repository.create(
+
+    job_id="TEST001",
+
+    status="Applied",
+
+    resume_path="resume.docx",
+
+    cover_letter_path="cover_letter.docx",
+
+    company="Microsoft",
+
+    job_title="Business Intelligence Analyst",
+
+    source="Career OS",
+
+    resume_version="v1",
 
 )
 
 print("=" * 60)
 print("APPLICATION SAVED")
 print("=" * 60)
+
+print(repository.all())

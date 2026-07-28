@@ -1,10 +1,7 @@
 from docx import Document
 from docx.shared import Pt
 
-from config.settings import (
-    RESUME_DIR,
-    RESUME_FILENAME
-)
+from config.settings import settings
 
 
 class ResumeWriter:
@@ -13,7 +10,7 @@ class ResumeWriter:
 
         if output_file is None:
 
-            RESUME_DIR.mkdir(
+            settings.resume_dir.mkdir(
 
                 parents=True,
 
@@ -21,7 +18,7 @@ class ResumeWriter:
 
             )
 
-            output_file = RESUME_DIR / RESUME_FILENAME
+            output_file = settings.resume_dir / settings.resume_filename
 
         document = Document()
 

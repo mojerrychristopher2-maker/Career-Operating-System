@@ -15,6 +15,11 @@ from modules.cover_letter.cover_letter_engine import CoverLetterEngine
 from modules.documents.resume_writer import ResumeWriter
 
 from modules.documents.cover_letter_writer import CoverLetterWriter
+from modules.repository.application_repository import ApplicationRepository
+from modules.repository.company_repository import CompanyRepository
+from modules.intelligence.application_tracker import ApplicationTracker
+from agent.store import Store
+from config.settings import settings
 
 
 class Pipeline:
@@ -22,6 +27,20 @@ class Pipeline:
     def __init__(self):
 
         self.profile = ProfileManager()
+
+        self.store = Store(settings.database)
+
+        self.application_repository = ApplicationRepository(self.store)
+
+        self.company_repository = CompanyRepository(self.store)
+
+        self.application_tracker = ApplicationTracker(
+
+            self.application_repository,
+
+            self.company_repository,
+
+        )
 
         self.discovery = DiscoveryService.greenhouse(
             self.profile.get_all(),

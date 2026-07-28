@@ -1,15 +1,26 @@
-from database.application_repository import ApplicationRepository
+from agent.store import Store
+from config.settings import settings
 
-repo = ApplicationRepository()
+from modules.repository.application_repository import ApplicationRepository
+
+
+store = Store(settings.database)
+
+repository = ApplicationRepository(store)
+
 
 print("=" * 60)
 print("APPLICATION HISTORY")
 print("=" * 60)
 
-print(repo.get_all())
+applications = repository.all()
+
+for application in applications:
+
+    print(application)
 
 print()
 
 print("Total Applications:")
 
-print(repo.count())
+print(len(applications))

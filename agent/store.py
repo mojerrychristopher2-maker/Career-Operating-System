@@ -58,6 +58,30 @@ class Store:
 
         );
 
+        create table if not exists companies (
+
+            name text primary key,
+
+            industry text,
+
+            headquarters text,
+
+            company_size text,
+
+            website text,
+
+            linkedin text,
+
+            careers_url text,
+
+            notes text,
+
+            created_at text,
+
+            last_updated text
+
+        );
+
         create table if not exists events (
 
             id integer primary key autoincrement,
@@ -151,3 +175,96 @@ class Store:
         )
 
         self.db.commit()
+
+    def company_exists(self, name):
+
+        return bool(
+
+            self.db.execute(
+
+                "select 1 from companies where name=?",
+
+                (name,)
+
+            ).fetchone()
+
+        )
+
+
+    def create_company(self, name):
+
+        self.db.execute(
+
+            """
+            insert into companies(
+
+                name,
+
+                created_at,
+
+                last_updated
+
+            )
+
+            values(?,?,?)
+
+            """,
+
+            (
+
+                name,
+
+                self.now(),
+
+                self.now(),
+
+            ),
+
+        )
+
+        self.db.commit()
+
+
+    def update_company(self, name, **fields):
+
+        if not fields:
+
+            return
+
+        fields["last_updated"] = self.now()
+
+        columns = ",".join(f"{k}=?" for k in fields)
+
+        values = list(fields.values())
+
+        values.append(name)
+
+        self.db.execute(
+
+            f"update companies set {columns} where name=?",
+
+            values,
+
+        )
+
+        self.db.commit()
+
+
+    def get_company(self, name):
+
+        return self.db.execute(
+
+            "select * from companies where name=?",
+
+            (name,)
+
+        ).fetchone()
+
+
+    def all_companies(self):
+
+        return self.db.execute(
+
+            "select * from companies order by name"
+
+        ).fetchall()

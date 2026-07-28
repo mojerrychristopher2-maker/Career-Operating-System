@@ -1,8 +1,18 @@
 class ApplicationTracker:
 
-    def __init__(self, repository):
+    def __init__(
 
-        self.repository = repository
+        self,
+
+        application_repository,
+
+        company_repository,
+
+    ):
+
+        self.application_repository = application_repository
+
+        self.company_repository = company_repository
 
     def apply(
 
@@ -15,6 +25,12 @@ class ApplicationTracker:
 
     ):
 
+        company = job.get("company", "")
+
+        if company:
+
+            self.company_repository.create(company)
+        
         self.repository.create(
 
             job_id=job["id"],
