@@ -7,8 +7,19 @@ def profile():
     if not settings.profile.exists(): raise RuntimeError('Create data/profile.json from data/profile.example.json first.')
     return json.loads(settings.profile.read_text(encoding='utf-8'))
 def run_cycle(store, workers):
-    found=workers.discover(); workers.process(profile()); store.log('cycle',f'Completed autonomous cycle; {found} jobs checked.')
-    print(f'Cycle complete. {found} job records ingested.')
+
+    jobs = workers.discovery.discover()
+
+    workers.process(profile(), jobs)
+
+    store.log(
+        "cycle",
+        f"Completed autonomous cycle; {len(jobs)} jobs discovered."
+    )
+
+    print(
+        f"Cycle complete. {len(jobs)} jobs discovered."
+    )
 def main():
     parser=argparse.ArgumentParser(description='Mojerry Career OS autonomous worker')
     parser.add_argument('command',choices=['run-once','watch','status']); args=parser.parse_args(); store=Store(settings.database)

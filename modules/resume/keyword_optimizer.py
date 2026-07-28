@@ -1,21 +1,60 @@
 class KeywordOptimizer:
 
-    def analyze(self, resume, job):
+    def optimize(self, profile_skills, job_skills):
 
-        description = job.description.lower()
+        optimized = []
+
+        remaining = []
+
+        profile_lower = [
+            skill.lower()
+            for skill in profile_skills
+        ]
+
+        for job_skill in job_skills:
+
+            if job_skill.lower() in profile_lower:
+
+                optimized.append(job_skill)
+
+        for skill in profile_skills:
+
+            if skill not in optimized:
+
+                remaining.append(skill)
+
+        return optimized + remaining
+
+    def analyze(self, profile_skills, job_skills):
 
         matched = []
+
         missing = []
 
-        for skill in resume["skills"]:
+        profile_lower = [
+            skill.lower()
+            for skill in profile_skills
+        ]
 
-            if skill.lower() in description:
+        for skill in job_skills:
+
+            if skill.lower() in profile_lower:
+
                 matched.append(skill)
+
+            else:
+
+                missing.append(skill)
 
         return {
 
             "matched": matched,
 
-            "missing": missing
+            "missing": missing,
+
+            "optimized": self.optimize(
+                profile_skills,
+                job_skills
+            )
 
         }

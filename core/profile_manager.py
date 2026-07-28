@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 class ProfileManager:
-    def __init__(self, profile_path="profile.json"):
+    def __init__(self, profile_path="data/profile.json"):
         self.profile_path = Path(profile_path)
         self.profile = self.load_profile()
 

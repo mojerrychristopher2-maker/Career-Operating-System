@@ -23,8 +23,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DB_PATH = ROOT / "career_os.db"
-PROFILE_PATH = ROOT / "profile.json"
-JOBS_PATH = ROOT / "jobs.json"
+PROFILE_PATH = ROOT / "data" / "profile.json"
+JOBS_PATH = ROOT / "data" / "jobs.json"
 ARTIFACTS = ROOT / "artifacts"
 MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 POLL_SECONDS = int(os.getenv("POLL_SECONDS", "1800"))

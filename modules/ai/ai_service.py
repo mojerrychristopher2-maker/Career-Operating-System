@@ -1,4 +1,16 @@
+from modules.ai.providers.openai_provider import OpenAIProvider
+from modules.ai.providers.gemini_provider import GeminiProvider
+
+
 class AIService:
+
+    def __init__(self):
+
+        self.provider = GeminiProvider()
+
+    def generate(self, prompt):
+
+        return self.provider.generate(prompt)
 
     def generate_summary(
 
@@ -27,18 +39,13 @@ Skills:
 Experience:
 {', '.join(profile['experience'])}
 
-Target Company:
+Company:
 {company}
 
 Job Title:
 {title}
 
-Write a concise professional summary (3-5 sentences)
-that is ATS-friendly, confident, and tailored to this role.
+Write a professional ATS-friendly summary.
 """
 
         return self.generate(prompt)
-
-    def generate(self, prompt):
-
-        return f"[AI RESPONSE]\n\n{prompt}"
