@@ -1,32 +1,38 @@
-from core.profile_manager import ProfileManager
-from modules.discovery.job_crawler import JobCrawler
+from modules.discovery.greenhouse_provider import GreenhouseProvider
 
 
 class DiscoveryService:
-    """
-    Responsible for discovering jobs from all configured sources.
-
-    This class is the single entry point for job discovery.
-    """
 
     def __init__(self):
 
-        self.profile = ProfileManager().get_all()
+        self.providers = []
 
-        self.crawler = JobCrawler(self.profile)
+    def register_provider(self, provider):
+
+        self.providers.append(provider)
 
     def discover(self):
 
         jobs = []
 
-        #
-        # Every supported job source will be added here.
-        #
+        for provider in self.providers:
 
-        jobs.extend(
-            self.crawler.crawl(
-                "https://job-boards.greenhouse.io/anthropic"
-            )
-        )
+            jobs.extend(provider.discover())
 
         return jobs
+
+    @classmethod
+    def greenhouse(cls, profile, careers_url):
+
+        service = cls()
+
+        service.register_provider(
+
+            GreenhouseProvider(
+                profile,
+                careers_url
+            )
+
+        )
+
+        return service

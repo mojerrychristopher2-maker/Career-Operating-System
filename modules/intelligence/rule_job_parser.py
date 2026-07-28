@@ -7,7 +7,24 @@ class RuleJobParser:
 
         text = page.locator("body").inner_text()
 
-        title = page.title()
+        title = ""
+
+        lines = [
+            line.strip()
+            for line in text.splitlines()
+            if line.strip()
+        ]
+
+        for i, line in enumerate(lines):
+
+            if line.lower() == "back to jobs" and i + 1 < len(lines):
+
+                title = lines[i + 1]
+                break
+
+        if not title:
+
+            title = page.title()
 
         return {
 

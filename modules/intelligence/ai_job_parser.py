@@ -66,7 +66,61 @@ class RuleJobParser:
 
         text = page.locator("body").inner_text()
 
-        title = page.title()
+        title = ""
+
+        for selector in [
+
+            "h1",
+            "[data-testid='job-title']",
+            ".job-post-title",
+            ".opening",
+
+        ]:
+
+            try:
+
+                value = page.locator(selector).first.inner_text().strip()
+
+                if value:
+
+                    title = value
+                    break
+
+            except:
+
+                pass
+
+        if not title:
+
+            title = ""
+
+            lines = [
+                line.strip()
+                for line in text.splitlines()
+                if line.strip()
+            ]
+
+            for i, line in enumerate(lines):
+
+                if line.lower() == "back to jobs" and i + 1 < len(lines):
+
+                    title = lines[i + 1]
+                    break
+
+            if not title:
+
+                title = page.title()
+
+        # -------------------------
+        # Normalize title
+        # -------------------------
+
+        title = (
+            title
+            .replace("Job Application for ", "")
+            .replace(" at Anthropic", "")
+            .strip()
+        )
 
         return {
 
@@ -90,7 +144,7 @@ class RuleJobParser:
 
             "seniority": self.extract_seniority(title + " " + text),
 
-            "page_text": text
+            "page_text": text,
 
         }
 

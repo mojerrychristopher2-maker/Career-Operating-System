@@ -2,7 +2,7 @@ from core.logger import logger
 
 from core.profile_manager import ProfileManager
 
-from modules.discovery.job_crawler import JobCrawler
+from modules.discovery.discovery_service import DiscoveryService
 
 from modules.intelligence.job_parser import JobParser
 
@@ -23,11 +23,16 @@ class Pipeline:
 
         self.profile = ProfileManager()
 
-        self.crawler = JobCrawler()
+        self.discovery = DiscoveryService.greenhouse(
+            self.profile.get_all(),
+            "https://job-boards.greenhouse.io/anthropic"
+        )
 
         self.parser = JobParser()
 
-        self.scorer = CandidateScorer()
+        self.scorer = CandidateScorer(
+            self.profile.get_all()
+        )
 
         self.resume_builder = ResumeBuilder()
 
@@ -49,9 +54,11 @@ class Pipeline:
 
         logger.info("Searching Greenhouse...")
 
-        jobs = self.crawler.crawl(
-            "https://job-boards.greenhouse.io/anthropic"
-        )
+        jobs = self.discovery.discover()
+
+        print("\nDEBUG JOB:")
+        print(jobs[0])
+        print()
 
         logger.success(f"Found {len(jobs)} jobs")
 
