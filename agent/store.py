@@ -7,17 +7,74 @@ class Store:
         path.parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(path)
         self.db.row_factory = sqlite3.Row
-        self.db.executescript('''
+        self.db.executescript("""
         create table if not exists jobs (
-          id text primary key, title text not null, company text not null, url text,
-          description text not null, status text not null default 'discovered',
-          fit_score integer, ats_score integer, reasoning text, created_at text not null);
+
+            id text primary key,
+
+            title text,
+
+            company text,
+
+            location text,
+
+            url text,
+
+            description text,
+
+            status text default 'discovered',
+
+            score integer default 0,
+
+            created_at text
+
+        );
+
         create table if not exists applications (
-          job_id text primary key, status text not null, resume_path text, cover_letter_path text,
-          applied_at text, follow_up_at text, foreign key(job_id) references jobs(id));
+
+            job_id text primary key,
+
+            status text not null,
+
+            resume_path text,
+
+            cover_letter_path text,
+
+            applied_at text,
+
+            follow_up_at text,
+
+            company text,
+
+            job_title text,
+
+            source text,
+
+            resume_version text,
+
+            last_updated text,
+
+            foreign key(job_id) references jobs(id)
+
+        );
+
         create table if not exists events (
-          id integer primary key autoincrement, job_id text, kind text not null, detail text not null, created_at text not null);
-        ''')
+
+            id integer primary key autoincrement,
+
+            job_id text,
+
+            kind text,
+
+            detail text,
+
+            created_at text,
+
+            foreign key(job_id) references jobs(id)
+
+        );
+        """)
+
         self.db.commit()
     def now(self): return datetime.now(UTC).isoformat()
     def log(self, kind, detail, job_id=None):
@@ -39,5 +96,58 @@ class Store:
         return self.db.execute(
             "select * from applications order by job_id"
         ).fetchall()
-    def add_application(self, job_id, status, resume, letter):
-        self.db.execute('insert or replace into applications values(?,?,?,?,?,?)',(job_id,status,str(resume),str(letter),None,None));self.db.commit()
+    def add_application(
+        self,
+        job_id,
+        status,
+        resume,
+        letter,
+        company="",
+        job_title="",
+        source="",
+        resume_version="v1"
+    ):
+
+        self.db.execute(
+        """
+            insert or replace into applications (
+
+                job_id,
+                status,
+                resume_path,
+                cover_letter_path,
+                applied_at,
+                follow_up_at,
+                company,
+                job_title,
+                source,
+                resume_version,
+                last_updated
+
+            )
+
+            values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+
+            (
+
+                job_id,
+                status,
+                str(resume),
+                str(letter),
+
+                self.now(),
+                None,
+
+                company,
+                job_title,
+                source,
+                resume_version,
+
+                self.now()
+
+            )
+
+        )
+
+        self.db.commit()
