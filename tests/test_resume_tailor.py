@@ -22,9 +22,9 @@ job = {
 
 }
 
-scorer = CandidateScorer()
+scorer = CandidateScorer(profile)
 
-score = scorer.score(profile, job)
+score = scorer.score(job)
 
 tailor = ResumeTailor()
 

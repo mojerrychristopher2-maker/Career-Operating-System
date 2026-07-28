@@ -32,5 +32,12 @@ class Store:
         columns=','.join(f'{key}=?' for key in values)
         self.db.execute(f'update jobs set {columns} where id=?', (*values.values(),job_id)); self.db.commit()
     def application_exists(self, job_id): return bool(self.db.execute('select 1 from applications where job_id=?',(job_id,)).fetchone())
+    def applications(self):
+        """
+        Return all stored applications.
+        """
+        return self.db.execute(
+            "select * from applications order by job_id"
+        ).fetchall()
     def add_application(self, job_id, status, resume, letter):
         self.db.execute('insert or replace into applications values(?,?,?,?,?,?)',(job_id,status,str(resume),str(letter),None,None));self.db.commit()

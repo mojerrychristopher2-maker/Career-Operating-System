@@ -1,4 +1,4 @@
-from modules.resume.resume_builder import ResumeBuilder
+from modules.builder.resume_builder import ResumeBuilder
 from modules.resume.keyword_optimizer import KeywordOptimizer
 
 
