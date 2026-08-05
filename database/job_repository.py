@@ -1,73 +1,120 @@
 import sqlite3
-from modules.discovery.job import Job
 
 
 class JobRepository:
 
     def __init__(self, db_path="career_os.db"):
+
         self.conn = sqlite3.connect(db_path)
+        self.conn.row_factory = sqlite3.Row
         self.cursor = self.conn.cursor()
 
-        self.cursor.execute("""
-        CREATE TABLE IF NOT EXISTS jobs(
+    def save(self, job):
 
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            title TEXT,
-
-            company TEXT,
-
-            location TEXT,
-
-            url TEXT UNIQUE,
-
-            description TEXT,
-
-            source TEXT
-
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE INTO jobs
+            (
+                title,
+                company,
+                location,
+                url,
+                description,
+                match_score,
+                status
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                job.get("title"),
+                job.get("company"),
+                job.get("location"),
+                job.get("url"),
+                job.get("page_text"),
+                job.get("filter_score", 0),
+                "Discovered"
+            )
         )
-        """)
 
         self.conn.commit()
 
-    def save(self, job: Job):
+    def update_status(self, url, status):
 
-        self.cursor.execute("""
-
-        INSERT OR IGNORE INTO jobs(
-
-            title,
-            company,
-            location,
-            url,
-            description,
-            source
-
+        self.cursor.execute(
+            """
+            UPDATE jobs
+            SET status = ?
+            WHERE url = ?
+            """,
+            (
+                status,
+                url
+            )
         )
 
-        VALUES(?,?,?,?,?,?)
-
-        """,
-
-        (
-
-            job.title,
-            job.company,
-            job.location,
-            job.url,
-            job.description,
-            job.source
-
-        ))
-
         self.conn.commit()
+
+    def get_by_url(self, url):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM jobs
+            WHERE url = ?
+            """,
+            (url,)
+        )
+
+        return self.cursor.fetchone()
 
     def get_all(self):
 
         self.cursor.execute(
+            """
+            SELECT *
+            FROM jobs
+            ORDER BY match_score DESC
+            """
+        )
 
-            "SELECT title,company,location,url,description,source FROM jobs"
+        return self.cursor.fetchall()
 
+    def top_matches(self, limit=20):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM jobs
+            ORDER BY match_score DESC
+            LIMIT ?
+            """,
+            (limit,)
+        )
+
+        return self.cursor.fetchall()
+
+    def search_company(self, company):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM jobs
+            WHERE company LIKE ?
+            """,
+            (f"%{company}%",)
+        )
+
+        return self.cursor.fetchall()
+
+    def search_title(self, title):
+
+        self.cursor.execute(
+            """
+            SELECT *
+            FROM jobs
+            WHERE title LIKE ?
+            """,
+            (f"%{title}%",)
         )
 
         return self.cursor.fetchall()

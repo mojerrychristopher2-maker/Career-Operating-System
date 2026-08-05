@@ -68,6 +68,14 @@ class Store:
 
             company_size text,
 
+            jobs_discovered integer default 0,
+
+            applications integer default 0,
+
+            interviews integer default 0,
+
+            offers integer default 0,
+
             website text,
 
             linkedin text,

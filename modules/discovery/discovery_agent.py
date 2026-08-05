@@ -1,20 +1,29 @@
-from modules.discovery.providers.provider_factory import ProviderFactory
+from core.profile_manager import ProfileManager
+from modules.discovery.discovery_service import DiscoveryService
 
 
 class DiscoveryAgent:
 
+    def __init__(self):
+
+        self.profile = ProfileManager().get_all()
+
     def discover_jobs(self):
+
+        from modules.discovery.providers.provider_manager import ProviderManager
 
         jobs = []
 
-        providers = ProviderFactory.get_providers()
+        manager = ProviderManager(self.profile)
 
-        for provider in providers:
+        for careers_url in self.profile.get("career_sites", []):
 
-            jobs.extend(
+            provider = manager.get_provider(careers_url)
 
-                provider.discover()
+            if provider is None:
+                print(f"No provider available for {careers_url}")
+                continue
 
-            )
+            jobs.extend(provider.discover())
 
         return jobs

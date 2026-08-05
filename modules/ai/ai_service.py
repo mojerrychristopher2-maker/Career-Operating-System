@@ -1,4 +1,3 @@
-from modules.ai.providers.openai_provider import OpenAIProvider
 from modules.ai.providers.gemini_provider import GeminiProvider
 
 
@@ -46,6 +45,30 @@ Job Title:
 {title}
 
 Write a professional ATS-friendly summary.
+"""
+
+        return self.generate(prompt)
+
+    def research_company(self, company):
+
+        prompt = f"""
+You are a company research assistant.
+
+Research the following company.
+
+Company:
+{company}
+
+Return ONLY the following fields.
+
+Industry:
+Headquarters:
+Company Size:
+Website:
+LinkedIn:
+Summary:
+
+Do not add any explanations.
 """
 
         return self.generate(prompt)

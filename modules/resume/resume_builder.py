@@ -6,21 +6,29 @@ class ResumeBuilder:
     def __init__(self):
         self.profile = ProfileManager()
 
-    def build(self, job):
+    def build(self, tailoring_plan, job):
+
+        profile = self.profile.get_all()
 
         resume = {
 
-            "name": self.profile.get("name"),
+            "name": profile["name"],
 
-            "headline": self.profile.get("headline"),
+            "headline": profile["headline"],
 
-            "skills": self.profile.get("skills"),
+            "summary": "",
 
-            "experience": self.profile.get("experience"),
+            "skills": profile.get("skills", []),
 
-            "education": self.profile.get("education"),
+            "education": profile.get("education", []),
 
-            "certifications": self.profile.get("certifications")
+            "experience": profile.get("experience", []),
+
+            "certifications": profile.get("certifications", []),
+
+            "job_title": job.get("title", ""),
+
+            "company": job.get("company", "")
 
         }
 

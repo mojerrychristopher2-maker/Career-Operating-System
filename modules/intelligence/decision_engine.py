@@ -1,93 +1,44 @@
 class DecisionEngine:
 
-    def evaluate(self, score_result):
+    def evaluate(self, score):
 
-        score = score_result["overall_score"]
+        overall = score["overall_score"]
 
-        matched = score_result["matched_skills"]
-
-        missing = score_result["missing_skills"]
-
-        if score >= 90:
-
+        if overall >= 90:
             return {
-
-                "match_level": "Excellent",
-
-                "should_apply": True,
-
-                "recommendation": "Apply immediately."
-
+                "decision": "APPLY IMMEDIATELY",
+                "priority": "★★★★★",
+                "status": "Perfect Match",
+                "should_apply": True
             }
 
-        elif score >= 75:
-
+        elif overall >= 80:
             return {
-
-                "match_level": "Strong",
-
-                "should_apply": True,
-
-                "recommendation": "Tailor your resume before applying."
-
+                "decision": "APPLY",
+                "priority": "★★★★",
+                "status": "Strong Match",
+                "should_apply": True
             }
 
-        elif score >= 60:
-
+        elif overall >= 70:
             return {
-
-                "match_level": "Moderate",
-
-                "should_apply": True,
-
-                "recommendation": "Apply if this role matches your career goals."
-
+                "decision": "REVIEW MANUALLY",
+                "priority": "★★★",
+                "status": "Possible Match",
+                "should_apply": False
             }
 
-        elif score >= 40:
-
+        elif overall >= 50:
             return {
-
-                "match_level": "Weak",
-
-                "should_apply": False,
-
-                "recommendation": "Improve your missing skills before applying."
-
+                "decision": "LEARN MISSING SKILLS",
+                "priority": "★★",
+                "status": "Weak Match",
+                "should_apply": False
             }
 
-        else:
-
-            if len(matched) >= 5:
-
-                return {
-
-                    "match_level": "Potential",
-
-                    "should_apply": True,
-
-                    "recommendation": (
-
-                        "You have a strong technical foundation. "
-
-                        "Apply if you're willing to learn: "
-
-                        + ", ".join(missing)
-
-                    )
-
-                }
-
-            return {
-
-                "match_level": "Poor",
-
-                "should_apply": False,
-
-                "recommendation": (
-
-                    "Focus on learning before applying."
-
-                )
-
-            }
+        return {
+            "decision": "SKIP",
+            "priority": "★",
+            "status": "Poor Match",
+            "should_apply": False
+        }

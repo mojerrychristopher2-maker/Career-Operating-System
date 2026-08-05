@@ -1,21 +1,50 @@
 SKILL_WEIGHTS = {
 
     "critical": [
+
         "sql",
         "python",
-        "power bi"
+        "power bi",
+        "excel",
+        "tableau",
+        "mysql",
+        "postgresql",
+        "data analysis",
+        "business intelligence",
+        "analytics",
+        "reporting",
+        "dashboard",
+        "visualization"
+
     ],
 
     "important": [
-        "excel",
-        "tableau",
-        "git"
+
+        "git",
+        "github",
+        "power query",
+        "dax",
+        "statistics",
+        "data cleaning",
+        "etl",
+        "numpy",
+        "pandas",
+        "machine learning"
+
     ],
 
     "bonus": [
+
         "azure",
-        "business intelligence",
-        "power query"
+        "aws",
+        "docker",
+        "kubernetes",
+        "spark",
+        "snowflake",
+        "airflow",
+        "looker",
+        "bigquery"
+
     ]
 
 }

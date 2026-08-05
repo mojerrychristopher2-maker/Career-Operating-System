@@ -4,7 +4,7 @@ class KeywordFilter:
 
         self.profile = profile
 
-        self.keywords = [
+        self.skills = [
             skill.lower()
             for skill in profile.get("skills", [])
         ]
@@ -14,20 +14,49 @@ class KeywordFilter:
             for role in profile.get("target_roles", [])
         ]
 
+        self.role_keywords = [
+
+            "data analyst",
+            "business intelligence",
+            "bi",
+            "analytics",
+            "data",
+            "sql",
+            "power bi",
+            "tableau",
+            "python",
+            "reporting",
+            "dashboard",
+            "insights",
+            "visualization",
+            "analyst",
+            "engineer",
+            "scientist"
+
+        ]
+
     def score(self, page_text):
 
         text = page_text.lower()
 
         score = 0
 
-        for keyword in self.keywords:
+        # Skills
+        for skill in self.skills:
 
-            if keyword in text:
+            if skill in text:
                 score += 2
 
+        # Exact target roles
         for role in self.target_roles:
 
             if role in text:
-                score += 5
+                score += 6
+
+        # Broader analytics keywords
+        for keyword in self.role_keywords:
+
+            if keyword in text:
+                score += 1
 
         return score

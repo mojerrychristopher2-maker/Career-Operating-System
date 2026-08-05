@@ -1,5 +1,7 @@
 from core.logger import logger
 
+log = logger.bind(module="system")
+
 from core.profile_manager import ProfileManager
 
 from modules.discovery.discovery_service import DiscoveryService
@@ -13,7 +15,7 @@ from modules.builder.resume_builder import ResumeBuilder
 from modules.cover_letter.cover_letter_engine import CoverLetterEngine
 
 from modules.documents.resume_writer import ResumeWriter
-
+from modules.ai.ai_service import AIService
 from modules.documents.cover_letter_writer import CoverLetterWriter
 from modules.repository.application_repository import ApplicationRepository
 from modules.repository.company_repository import CompanyRepository
@@ -61,17 +63,19 @@ class Pipeline:
 
         self.cover_writer = CoverLetterWriter()
 
+        self.ai = AIService()
+
     def run(self):
 
-        logger.info("========== CAREER OS ==========")
+        log.info("========== CAREER OS ==========")
 
-        logger.info("Loading profile...")
+        log.info("Loading profile...")
 
         profile = self.profile.get_all()
 
-        logger.success(f"Loaded profile for {profile['name']}")
+        log.success(f"Loaded profile for {profile['name']}")
 
-        logger.info("Searching Greenhouse...")
+        log.info("Searching Greenhouse...")
 
         jobs = self.discovery.discover()
 
@@ -79,16 +83,51 @@ class Pipeline:
         print(jobs[0])
         print()
 
-        logger.success(f"Found {len(jobs)} jobs")
+        log.success(f"Found {len(jobs)} jobs")
 
         if not jobs:
 
-            logger.warning("No jobs found.")
+            log.warning("No jobs found.")
 
             return
 
         job = jobs[0]
 
-        logger.info(f"Top Job: {job['title']}")
+        company = job.get("company", "").strip()
 
-        return job
+        print(f"DEBUG COMPANY: '{company}'")
+        print("EXISTS:", self.company_repository.exists(company))
+
+        if company:
+
+            if not self.company_repository.exists(company):
+
+                self.company_repository.create(company)
+
+                log.info(f"Researching company: {company}")
+
+                research = self.ai.research_company(company)
+
+                self.company_repository.update(
+
+                    company,
+
+                    notes=research
+
+                )
+
+            existing = self.company_repository.get(company)
+
+            discovered = existing["jobs_discovered"] or 0
+
+            self.company_repository.update(
+
+                company,
+
+                jobs_discovered=discovered + 1
+
+            )
+
+            log.info(f"Top Job: {job['title']}")
+
+            return job

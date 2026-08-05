@@ -1,25 +1,25 @@
-from modules.resume.summary_generator import SummaryGenerator
-from modules.resume.keyword_optimizer import KeywordOptimizer
-
-
 class ResumeTailor:
-
-    def __init__(self):
-
-        self.summary = SummaryGenerator()
-
-        self.optimizer = KeywordOptimizer()
 
     def tailor(self, profile, job):
 
-        profile["professional_summary"] = self.summary.generate(
-            profile,
-            job,
-        )
+        resume = profile.copy()
 
-        profile["skills"] = self.optimizer.optimize(
-            profile["skills"],
-            job["skills"],
-        )
+        skills = profile.get("skills", [])
 
-        return profile
+        matched = job.get("matched_skills", [])
+
+        prioritized = []
+
+        for skill in matched:
+
+            if skill in skills:
+                prioritized.append(skill)
+
+        for skill in skills:
+
+            if skill not in prioritized:
+                prioritized.append(skill)
+
+        resume["skills"] = prioritized
+
+        return resume

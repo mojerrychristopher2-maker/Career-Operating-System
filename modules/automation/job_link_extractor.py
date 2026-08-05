@@ -1,8 +1,11 @@
+from urllib.parse import urljoin
+
+
 class JobLinkExtractor:
 
     def extract(self, page):
 
-        links = []
+        links = set()
 
         anchors = page.locator("a").all()
 
@@ -13,12 +16,30 @@ class JobLinkExtractor:
             if not href:
                 continue
 
-            if "/jobs/" in href:
+            text = anchor.inner_text().strip()
 
-                if href.startswith("/"):
+            # Ignore buttons and navigation
+            if text.lower() in {
+                "apply",
+                "submit",
+                "learn more",
+                "privacy",
+                "terms",
+                "back",
+                "create alert",
+            }:
+                continue
 
-                    href = "https://job-boards.greenhouse.io" + href
+            # Convert relative URLs
+            href = urljoin(page.url, href)
 
-                links.append(href)
+            # Greenhouse jobs
+            if "job-boards.greenhouse.io" in href and "/jobs/" in href:
 
-        return sorted(list(set(links)))
+                # Skip direct application pages
+                if "/applications/" in href:
+                    continue
+
+                links.add(href)
+
+        return sorted(links)

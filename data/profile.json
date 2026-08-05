@@ -1,5 +1,9 @@
 {
   "name": "Mojerry Christopher Sehloka",
+  "email": "mojerrychristopher2@gmail.com",
+  "phone": "+27664156720",
+  "linkedin": "https://www.linkedin.com/in/mojery-sehloka-412322386/",
+  "github": "https://github.com/mojerrychristopher2-maker",
   "headline": "Data Analyst | Business Intelligence | Power BI | SQL | Python",
   "location": "Polokwane, Limpopo, South Africa",
   "target_roles": [
@@ -26,7 +30,54 @@
     "Career Boost with Power BI & AI – Professional Gen AI (2026)",
     "Data Analytics & Visualization Using Python – INFNOVA"
   ],
+  "projects": [
+  {
+    "name": "Retail Sales Dashboard",
+    "tools": [
+      "Power BI",
+      "Excel"
+    ],
+    "keywords": [
+      "dashboard",
+      "kpi",
+      "business intelligence",
+      "visualization"
+    ],
+    "description": "Built an interactive sales dashboard to analyse revenue, profit, customer behaviour and regional performance."
+  },
+  {
+    "name": "E-Commerce SQL Analysis",
+    "tools": [
+      "SQL",
+      "MySQL"
+    ],
+    "keywords": [
+      "sql",
+      "joins",
+      "analytics",
+      "reporting"
+    ],
+    "description": "Analysed an e-commerce dataset using SQL to answer business questions and generate insights."
+  },
+  {
+    "name": "Python Data Analysis",
+    "tools": [
+      "Python",
+      "Pandas"
+    ],
+    "keywords": [
+      "python",
+      "cleaning",
+      "analysis",
+      "automation"
+    ],
+    "description": "Cleaned and analysed datasets using Python, producing visualisations and business insights."
+  }
+  ],
   "experience": [
     "Completed end-to-end data analytics portfolio projects using Excel, SQL, Power BI, Tableau, and Python, including data cleaning, transformation, exploratory data analysis, dashboard development, and business insight generation."
-  ]
+  ],
+"career_sites": [
+  "https://boards.greenhouse.io/anthropic"
+]
 }

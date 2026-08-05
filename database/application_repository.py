@@ -1,119 +1,82 @@
-from pathlib import Path
 import sqlite3
-
-from config.settings import APPLICATION_DIR
 
 
 class ApplicationRepository:
 
-    def __init__(self):
+    def __init__(self, db_path="career_os.db"):
 
-        APPLICATION_DIR.mkdir(
+        self.conn = sqlite3.connect(db_path)
 
-            parents=True,
+        self.cursor = self.conn.cursor()
 
-            exist_ok=True
+        
 
-        )
+    def save(self, company, title, url, applied_date, status):
 
-        self.database = APPLICATION_DIR / "career_os.db"
+        self.cursor.execute("""
 
-        self.connection = sqlite3.connect(
+        INSERT OR IGNORE INTO applications(
 
-            self.database
-
-        )
-
-        self.create_table()
-
-    def create_table(self):
-
-        cursor = self.connection.cursor()
-
-        cursor.execute("""
-
-        CREATE TABLE IF NOT EXISTS applications (
-
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-
-            company TEXT,
-
-            title TEXT,
-
-            score INTEGER,
-
-            applied INTEGER
+            company,
+            title,
+            url,
+            applied_date,
+            status,
+            notes
 
         )
 
-        """)
+        VALUES(?,?,?,?,?,?)
 
-        self.connection.commit()
+        """,
 
-    def save(self, company, title, score, applied):
+        (
 
-        cursor = self.connection.cursor()
+            company,
+            title,
+            url,
+            applied_date,
+            status,
+            ""
 
-        cursor.execute(
+        ))
 
-            """
+        self.conn.commit()
 
-            INSERT INTO applications (
+    def update_status(self, url, status):
 
-                company,
+        self.cursor.execute("""
 
-                title,
+        UPDATE applications
 
-                score,
+        SET status=?
 
-                applied
+        WHERE url=?
 
-            )
+        """,
 
-            VALUES (?, ?, ?, ?)
+        (
 
-            """,
+            status,
+            url
 
-            (
+        ))
 
-                company,
+        self.conn.commit()
 
-                title,
-
-                score,
-
-                applied
-
-            )
-
-        )
-
-        self.connection.commit()
-    
     def get_all(self):
 
-        cursor = self.connection.cursor()
+        self.cursor.execute("""
 
-        cursor.execute("""
+        SELECT
 
-            SELECT *
+            company,
+            title,
+            status,
+            applied_date
 
-            FROM applications
-
-        """)
-
-        return cursor.fetchall()
-    
-    def count(self):
-
-        cursor = self.connection.cursor()
-
-        cursor.execute("""
-
-            SELECT COUNT(*)
-
-            FROM applications
+        FROM applications
 
         """)
 
-        return cursor.fetchone()[0]
+        return self.cursor.fetchall()

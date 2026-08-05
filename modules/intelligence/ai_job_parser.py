@@ -156,6 +156,10 @@ class RuleJobParser:
 
             line = line.strip()
 
+            if line.startswith("About "):
+
+                return line.replace("About ", "").strip()
+
             if line.startswith("Company"):
 
                 return line.replace("Company", "").replace(":", "").strip()

@@ -1,43 +1,25 @@
+from pathlib import Path
 from docx import Document
-from docx.shared import Pt
-
-from config.settings import settings
 
 
 class CoverLetterWriter:
 
-    def create(self, cover_letter, output_file=None):
+    def __init__(self):
+        self.output_dir = Path("output/cover_letters")
+        self.output_dir.mkdir(parents=True, exist_ok=True)
 
-        if output_file is None:
-
-            settings.cover_letter_dir.mkdir(
-
-                parents=True,
-
-                exist_ok=True
-
-            )
-
-            output_file = settings.cover_letter_dir / settings.cover_letter_filename
+    def create(self, cover_letter):
 
         document = Document()
 
-        heading = document.add_heading(
+        document.add_heading("Cover Letter", level=1)
 
-            cover_letter["candidate"],
+        document.add_paragraph(cover_letter)
 
-            level=1
+        filename = "Cover_Letter.docx"
 
-        )
+        filepath = self.output_dir / filename
 
-        heading.style.font.size = Pt(20)
+        document.save(filepath)
 
-        document.add_paragraph(
-
-            cover_letter["cover_letter"]
-
-        )
-
-        document.save(output_file)
-
-        return output_file
+        return filepath

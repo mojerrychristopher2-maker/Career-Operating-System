@@ -6,66 +6,38 @@ class CompanyIntelligence:
 
     def company_history(self, company):
 
-        applications = self.repository.all()
+        company_record = self.repository.get(company)
 
-        return [
+        if not company_record:
 
-            app
+            return None
 
-            for app in applications
-
-            if app.get("company", "").lower() == company.lower()
-
-        ]
+        return company_record
 
     def company_statistics(self):
 
-        applications = self.repository.all()
+        companies = self.repository.all()
 
-        companies = {}
+        stats = {}
 
-        for app in applications:
+        for company in companies:
 
-            company = app.get("company", "Unknown")
+            stats[company["name"]] = {
 
-            if company not in companies:
+                "jobs_discovered": company["jobs_discovered"],
 
-                companies[company] = {
+                "applications": company["applications"],
 
-                    "applications": 0,
+                "interviews": company["interviews"],
 
-                    "interviews": 0,
+                "offers": company["offers"],
 
-                    "offers": 0,
+                "industry": company["industry"],
 
-                }
+                "headquarters": company["headquarters"],
 
-            companies[company]["applications"] += 1
+                "website": company["website"],
 
-            status = app["status"]
+            }
 
-            if status in (
-
-                "Interview Scheduled",
-
-                "Interview Complete",
-
-                "Offer",
-
-                "Accepted",
-
-            ):
-
-                companies[company]["interviews"] += 1
-
-            if status in (
-
-                "Offer",
-
-                "Accepted",
-
-            ):
-
-                companies[company]["offers"] += 1
-
-        return companies
+        return stats

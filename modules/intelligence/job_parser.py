@@ -1,44 +1,28 @@
+from knowledge.skill_weights import SKILL_WEIGHTS
+
+
 class JobParser:
 
     def parse(self, job_description):
 
-        result = {
-            "required": [],
+        lower = job_description.lower()
+
+        found = []
+
+        for category in SKILL_WEIGHTS.values():
+
+            for skill in category:
+
+                if skill.lower() in lower:
+
+                    found.append(skill)
+
+        return {
+
+            "required": found,
+
             "preferred": [],
+
             "bonus": []
+
         }
-
-        current_section = None
-
-        for line in job_description.splitlines():
-
-            line = line.strip()
-
-            if not line:
-                continue
-
-            lower = line.lower()
-
-            if lower == "requirements":
-
-                current_section = "required"
-
-                continue
-
-            elif lower == "preferred":
-
-                current_section = "preferred"
-
-                continue
-
-            elif lower == "nice to have":
-
-                current_section = "bonus"
-
-                continue
-
-            if current_section:
-
-                result[current_section].append(line)
-
-        return result
