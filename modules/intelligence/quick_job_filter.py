@@ -1,5 +1,5 @@
 from modules.intelligence.role_matcher import RoleMatcher
-from knowledge.career_focus import TARGET_CAREERS
+from knowledge.career_strategy import TARGET_CAREERS
 
 
 class QuickJobFilter:

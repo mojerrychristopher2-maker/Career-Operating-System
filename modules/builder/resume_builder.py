@@ -38,6 +38,10 @@ class ResumeBuilder:
 
             "certifications": profile.get("certifications", []),
 
+            "company": job.get("company", ""),
+
+            "job_title": job.get("title", ""),
+
             "target_roles": profile.get("target_roles", []),
 
             "resume_plan": {

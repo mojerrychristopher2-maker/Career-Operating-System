@@ -1,6 +1,8 @@
 from modules.automation.browser_manager import BrowserManager
 from modules.automation.job_link_extractor import JobLinkExtractor
 from modules.intelligence.rule_job_parser import RuleJobParser
+from modules.discovery.quick_filter import QuickFilter
+from database.application_repository import ApplicationRepository
 
 
 class JobCrawler:
@@ -8,94 +10,118 @@ class JobCrawler:
     def __init__(self, profile):
 
         self.profile = profile
+        self.parser = RuleJobParser()
+        self.repo = ApplicationRepository()
 
     def crawl(self, careers_url):
 
         browser = BrowserManager()
         browser.start()
 
+        quick_filter = QuickFilter()
+
+        discovered_jobs = []
+
         try:
 
             browser.open(careers_url)
 
-            links = JobLinkExtractor().extract(browser.page)
-            print(f"\nFound {len(links)} job links.\n")
+            job_cards = JobLinkExtractor().extract(browser.page)
 
-            jobs = []
+            print(
+                f"\nFound {len(job_cards)} job cards.\n"
+            )
 
-            for link in links:
+            for job in job_cards:
+
+                title = job["title"]
+                url = job["url"]
+
+                # ---------------------------------
+                # QUICK FILTER
+                # ---------------------------------
+
+                decision = quick_filter.should_open(title)
+
+                if not decision["open"]:
+
+                    print(
+                        f"Skipped: {title}"
+                    )
+
+                    continue
 
                 try:
 
-                    print("STEP 1")
+                    # ---------------------------------
+                    # OPEN JOB
+                    # ---------------------------------
 
-                    browser.open(link)
-                    print(f"Crawling: {link}")
+                    print(
+                        f"\nOpening: {title}"
+                    )
 
-                    print("STEP 2")
+                    browser.open(url)
 
-                    page_text = browser.get_text()
+                    # ---------------------------------
+                    # PARSE JOB
+                    # ---------------------------------
 
-                    if "Submit application" in page_text:
-                        page_text = page_text.split("Submit application")[0]
+                    parsed = self.parser.parse(
+                        browser.page
+                    )
 
-                    print("STEP 5")
+                    parsed["title"] = title
 
-                    job = RuleJobParser().parse(browser.page)
+                    parsed["url"] = url
 
-                    print("\nExtracted skills:")
-                    print(job["skills"])
-                    print(f"Total skills extracted: {len(job['skills'])}")
-                    print("-" * 60)
+                    parsed["company"] = (
+                        job.get("company", "")
+                    )
 
-                    from modules.intelligence.candidate_scorer import CandidateScorer
+                    parsed["location"] = (
+                        job.get("location", "")
+                    )
 
-                    scorer = CandidateScorer(self.profile)
+                    # ---------------------------------
+                    # REMEMBER JOB
+                    # ---------------------------------
 
-                    score = scorer.score(job)
+                    if self.repo.has_seen(url):
 
-                    job["match_score"] = score["overall_score"]
-                    job["matched_skills"] = score["matched_skills"]
-                    job["missing_skills"] = score["missing_skills"]
+                        print(
+                            f"Refreshing known job: {title}"
+                        )
 
-                    from modules.intelligence.decision_engine import DecisionEngine
+                    else:
 
-                    decision = DecisionEngine().evaluate(score)
+                        print(
+                            f"New job discovered: {title}"
+                        )
 
-                    job["decision"] = decision
+                    self.repo.remember_job(parsed)
 
-                    print("=" * 60)
-                    print(job["title"])
-                    print(f"Role Match: {score['role_match']}")
-                    print(f"Career Goal Score: {score['career_goal_score']}")
-                    print(f"Skills Score: {score['skills_score']}")
-                    print(f"Overall Score: {score['overall_score']}")
-                    print(decision)
+                    # ---------------------------------
+                    # ADD TO CURRENT RUN
+                    # ---------------------------------
 
-                    #if not decision["should_apply"]:
-                    #    continue
+                    discovered_jobs.append(parsed)
 
-                    page_text = job["page_text"].lower()
-
-                    if "submit application" in page_text:
-                        job["page_text"] = job["page_text"].split("Submit application")[0]
-
-                    job["url"] = link
-                    job["candidate_score"] = score
-
-                    jobs.append(job)
-
-                    print("STEP 8")
+                    print(
+                        f"Extracted "
+                        f"{len(parsed.get('skills', []))} "
+                        f"skills."
+                    )
 
                 except Exception as e:
 
-                    import traceback
+                    print(
+                        f"Failed: {title}"
+                    )
 
-                    traceback.print_exc()
+                    print(e)
 
-                    raise
-
-            return jobs
+            return discovered_jobs
 
         finally:
 

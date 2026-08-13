@@ -5,7 +5,9 @@ class JobLinkExtractor:
 
     def extract(self, page):
 
-        links = set()
+        jobs = []
+
+        seen = set()
 
         anchors = page.locator("a").all()
 
@@ -16,30 +18,58 @@ class JobLinkExtractor:
             if not href:
                 continue
 
-            text = anchor.inner_text().strip()
-
-            # Ignore buttons and navigation
-            if text.lower() in {
-                "apply",
-                "submit",
-                "learn more",
-                "privacy",
-                "terms",
-                "back",
-                "create alert",
-            }:
-                continue
-
-            # Convert relative URLs
             href = urljoin(page.url, href)
 
-            # Greenhouse jobs
-            if "job-boards.greenhouse.io" in href and "/jobs/" in href:
+            if "job-boards.greenhouse.io" not in href:
+                continue
 
-                # Skip direct application pages
-                if "/applications/" in href:
-                    continue
+            if "/jobs/" not in href:
+                continue
 
-                links.add(href)
+            if href in seen:
+                continue
 
-        return sorted(links)
+            seen.add(href)
+
+            text = anchor.inner_text().strip()
+
+            if not text:
+                continue
+
+            lines = [
+
+                line.strip()
+
+                for line in text.splitlines()
+
+                if line.strip()
+
+            ]
+
+            title = ""
+
+            if lines:
+                title = lines[0]
+
+            if not title:
+                continue
+
+            location = ""
+
+            if len(lines) > 1:
+
+                location = " ".join(lines[1:])
+
+            jobs.append({
+
+                "title": title,
+
+                "location": location,
+
+                "company": "Anthropic",
+
+                "url": href
+
+            })
+
+        return jobs

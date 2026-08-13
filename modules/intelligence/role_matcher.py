@@ -1,4 +1,5 @@
 from knowledge.role_weights import ROLE_WEIGHTS
+from knowledge.career_strategy import EXCLUDED_CAREERS
 from knowledge.career_families import CAREER_FAMILIES
 
 
@@ -7,95 +8,144 @@ class RoleMatcher:
     def __init__(self):
 
         self.role_weights = ROLE_WEIGHTS
+        self.excluded_roles = EXCLUDED_CAREERS
         self.career_families = CAREER_FAMILIES
+
+    def _normalise(self, text):
+
+        return " ".join(
+            text.lower().replace("-", " ").split()
+        )
+
+    def _detect_family(self, title):
+
+        title = self._normalise(title)
+
+        matches = []
+
+        for family, data in self.career_families.items():
+
+            score = 0
+
+            for keyword in data.get("primary", []):
+
+                keyword = self._normalise(keyword)
+
+                if keyword in title:
+                    score = max(
+                        score,
+                        data.get("weight", 0)
+                    )
+
+            for keyword in data.get("secondary", []):
+
+                keyword = self._normalise(keyword)
+
+                if keyword in title:
+                    score = max(
+                        score,
+                        data.get("weight", 0) * 0.5
+                    )
+
+            if score > 0:
+                matches.append(
+                    (family, score)
+                )
+
+        if not matches:
+            return None
+
+        matches.sort(
+            key=lambda x: x[1],
+            reverse=True
+        )
+
+        return matches[0][0]
 
     def score(self, title):
 
-        title = title.lower()
+        original_title = title
 
-        # -----------------------------
-        # Stage 1
-        # Exact Role Match
-        # -----------------------------
+        title = self._normalise(title)
 
-        best_role = None
-        best_role_score = 0
+        # -----------------------------------------
+        # HARD EXCLUSION
+        # -----------------------------------------
+
+        for excluded in self.excluded_roles:
+
+            excluded = self._normalise(excluded)
+
+            if excluded in title:
+
+                return {
+                    "role": None,
+                    "family": self._detect_family(title),
+                    "score": 0,
+                    "reason": "Excluded role",
+                    "matched_keyword": excluded
+                }
+
+        # -----------------------------------------
+        # ROLE MATCH
+        # -----------------------------------------
+
+        best_score = 0
+        matched_role = None
+        matched_keyword = None
 
         for role, score in self.role_weights.items():
 
-            if role.lower() in title:
+            role_normalised = self._normalise(role)
 
-                if score > best_role_score:
+            if role_normalised in title:
 
-                    best_role = role
-                    best_role_score = score
+                if score > best_score:
 
-        # -----------------------------
-        # Stage 2
-        # Career Family Match
-        # -----------------------------
+                    best_score = score
+                    matched_role = role
+                    matched_keyword = role_normalised
 
-        best_family = None
-        best_family_score = 0
+        # -----------------------------------------
+        # FAMILY
+        # -----------------------------------------
 
-        for family, config in self.career_families.items():
+        family = self._detect_family(title)
 
-            primary_hits = 0
-            secondary_hits = 0
+        # -----------------------------------------
+        # FAMILY BONUS
+        # -----------------------------------------
 
-            for keyword in config["primary"]:
+        family_score = 0
 
-                if keyword.lower() in title:
-                    primary_hits += 1
+        if family:
 
-            # Ignore this family completely if no primary keyword matched
-            if primary_hits == 0:
-                continue
-
-            for keyword in config["secondary"]:
-
-                if keyword.lower() in title:
-                    secondary_hits += 1
-
-            score = (
-                config["weight"]
-                + (primary_hits * 10)
-                + (secondary_hits * 5)
+            family_score = (
+                self.career_families
+                .get(family, {})
+                .get("weight", 0)
             )
 
-            if score > best_family_score:
+        # -----------------------------------------
+        # FINAL ROLE SCORE
+        # -----------------------------------------
 
-                best_family_score = score
-                best_family = family
-
-        # -----------------------------
-        # Final Decision
-        # -----------------------------
-
-        if best_role_score >= best_family_score:
-
-            return {
-
-                "role": best_role,
-
-                "family": best_family,
-
-                "score": best_role_score
-
-            }
-
-        if best_family == "cyber":
-            best_family_score = 0
-
-        final_score = max(best_role_score, best_family_score)
-        final_score = min(final_score, 100)
+        final_score = best_score
 
         return {
-
-            "role": best_role,
-
-            "family": best_family,
-
-            "score": final_score
-
+            "role": matched_role,
+            "family": family,
+            "score": final_score,
+            "family_score": family_score,
+            "matched_keyword": matched_keyword,
+            "reason": (
+                "Direct role match"
+                if matched_role
+                else (
+                    "Career family match"
+                    if family
+                    else "No role match"
+                )
+            ),
+            "title": original_title
         }

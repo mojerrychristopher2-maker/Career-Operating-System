@@ -18,28 +18,61 @@ class RuleJobParser:
     def extract_title(self, page):
 
         try:
-            return page.locator("h1").first.inner_text().strip()
-        except:
-            return page.title()
+            title = page.locator("h1").first.inner_text().strip()
+
+            if title:
+                return title
+
+        except Exception:
+            pass
+
+        try:
+            return page.title().strip()
+
+        except Exception:
+            return ""
 
     def extract_company(self, page):
+
+        try:
+            page_title = page.title().strip()
+
+            if " - " in page_title:
+                return page_title.split(" - ")[0].strip()
+
+        except Exception:
+            pass
 
         try:
             body = page.locator("body").inner_text()
 
             for line in body.splitlines():
 
-                if line.startswith("About "):
-                    return line.replace("About ", "").strip()
+                line = line.strip()
 
-        except:
+                if line.startswith("About "):
+
+                    company = line.replace(
+                        "About ",
+                        "",
+                        1
+                    ).strip()
+
+                    if company:
+                        return company
+
+        except Exception:
             pass
 
         return ""
 
     def extract_job_description(self, page):
 
-        body = page.locator("body").inner_text()
+        try:
+            body = page.locator("body").inner_text()
+
+        except Exception:
+            return ""
 
         stop_markers = [
 
@@ -53,8 +86,7 @@ class RuleJobParser:
             "Voluntary Self-Identification",
             "Veteran Status",
             "Disability Status",
-            "Powered by"
-
+            "Powered by",
         ]
 
         end = len(body)
@@ -64,26 +96,31 @@ class RuleJobParser:
             index = body.find(marker)
 
             if index != -1:
-
                 end = min(end, index)
 
-        return body[:end]
+        return body[:end].strip()
 
     def extract_location(self, text):
 
         for line in text.splitlines():
 
-            if "Remote" in line:
-                return line.strip()
+            line = line.strip()
+
+            if not line:
+                continue
+
+            if "remote" in line.lower():
+                return line
 
             if "," in line and len(line) < 80:
-                return line.strip()
+                return line
 
         return ""
 
     def extract_skills(self, text):
 
         common = [
+
             "Python",
             "SQL",
             "Power BI",
@@ -101,9 +138,9 @@ class RuleJobParser:
             "C++",
         ]
 
-        found = []
-
         lower = text.lower()
+
+        found = []
 
         for skill in common:
 
@@ -115,22 +152,34 @@ class RuleJobParser:
     def parse_text(self, text):
 
         lines = [
+
             line.strip()
+
             for line in text.splitlines()
+
             if line.strip()
         ]
 
         title = ""
 
         for i, line in enumerate(lines):
-            if line.lower() == "back to jobs" and i + 1 < len(lines):
-                title = lines[i + 1]
+
+            if line.lower() == "back to jobs":
+
+                if i + 1 < len(lines):
+                    title = lines[i + 1]
+
                 break
 
         return {
+
             "title": title,
-            "company": self.extract_company(text),
+
+            "company": "",
+
             "location": self.extract_location(text),
+
             "skills": self.extract_skills(text),
+
             "page_text": text,
         }

@@ -1,32 +1,52 @@
 CAREER_FAMILIES = {
 
-    "data": {
+   "data": {
 
         "weight": 100,
 
         "primary": [
 
+            "business intelligence analyst",
+            "business intelligence developer",
             "business intelligence",
-            "data analyst",
-            "analytics",
-            "power bi",
-            "sql",
-            "tableau",
-            "dashboard",
-            "reporting"
+            "bi analyst",
+            "bi developer",
 
+            "data analyst",
+            "data reporting analyst",
+            "reporting analyst",
+
+            "analytics analyst",
+            "analytics consultant",
+
+            "power bi developer",
+            "power bi analyst",
+
+            "sql analyst",
+            "sql developer",
+
+            "tableau developer",
+
+            "dashboard developer",
+
+            "data visualization analyst",
+
+            "kpi analyst",
+
+            "insights analyst",
+
+            "data quality analyst",
+
+            "data operations analyst",
+            "operations analyst"
         ],
 
         "secondary": [
-
-            "analyst",
-            "excel",
-            "operations",
-            "insights",
-            "visualization"
-
+            "reporting",
+            "dashboard",
+            "visualization",
+            "business intelligence"
         ]
-
     },
 
     "business": {

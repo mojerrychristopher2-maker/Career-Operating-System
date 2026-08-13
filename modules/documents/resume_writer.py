@@ -41,7 +41,15 @@ class ResumeWriter:
         for cert in resume["certifications"]:
             document.add_paragraph(cert, style="List Bullet")
 
-        filename = f"{resume['candidate'].replace(' ', '_')}_Resume.docx"
+        import re
+
+        company = resume.get("company", "UnknownCompany")
+        title = resume.get("job_title", "UnknownRole")
+
+        safe_company = re.sub(r'[\\/:*?"<>|]', "", company).replace(" ", "_")
+        safe_title = re.sub(r'[\\/:*?"<>|]', "", title).replace(" ", "_")
+
+        filename = f"{safe_company}_{safe_title}.docx"
 
         filepath = self.output_dir / filename
 
