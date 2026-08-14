@@ -1,403 +1,145 @@
+from knowledge.career_strategy import EXCLUDED_CAREERS, TARGET_CAREERS
 from knowledge.skill_weights import SKILL_WEIGHTS
-from knowledge.role_weights import ROLE_WEIGHTS
-from knowledge.career_strategy import TARGET_CAREERS, EXCLUDED_CAREERS
+from modules.discovery.job import Job
 from modules.intelligence.role_matcher import RoleMatcher
 
 
 class CandidateScorer:
+    """Score a discovered :class:`Job` against one Career OS profile.
+
+    Career alignment is evaluated first. Skill, education, and experience data
+    may explain fit for a relevant job, but can never lift an unrelated role.
+    """
 
     def __init__(self, profile):
-
         self.profile = profile
-
         self.role_matcher = RoleMatcher()
-
-        self.weights = {
-            "role": 40,
-            "career_goal": 25,
-            "skills": 25,
-            "seniority": 10,
-        }
-
         self.skill_weights = SKILL_WEIGHTS
-
-        self.skill_points = {
-            "critical": 5,
-            "important": 3,
-            "bonus": 1,
-        }
-
-    # --------------------------------------------------
-    # SKILL CATEGORY
-    # --------------------------------------------------
+        self.skill_points = {"critical": 5, "important": 3, "bonus": 1}
 
     def get_skill_category(self, skill):
-
-        skill = skill.lower().strip()
-
+        normalised = skill.lower().strip()
         for category, skills in self.skill_weights.items():
-
-            for known_skill in skills:
-
-                if skill == known_skill.lower():
-
-                    return category
-
+            if normalised in {known.lower() for known in skills}:
+                return category
         return None
 
-    # --------------------------------------------------
-    # SKILLS
-    # --------------------------------------------------
-
     def score_skills(self, job):
-
         profile_skills = {
-            skill.lower().strip()
-            for skill in self.profile.get("skills", [])
+            skill.lower().strip() for skill in self.profile.get("skills", [])
         }
-
-        matched = []
-        missing = []
-
-        earned_points = 0
-        possible_points = 0
+        matched, missing = [], []
+        earned_points = possible_points = 0
 
         for skill in job.skills:
-
-            category = self.get_skill_category(skill)
-
-            points = self.skill_points.get(
-                category,
-                1
-            )
-
+            points = self.skill_points.get(self.get_skill_category(skill), 1)
             possible_points += points
-
             if skill.lower().strip() in profile_skills:
-
                 matched.append(skill)
-
                 earned_points += points
-
             else:
-
                 missing.append(skill)
 
-        if possible_points == 0:
-
-            return {
-                "score": 0,
-                "matched": matched,
-                "missing": missing
-            }
-
-        score = round(
-            earned_points
-            / possible_points
-            * 100
-        )
-
         return {
-            "score": score,
+            "score": round(earned_points / possible_points * 100)
+            if possible_points else 0,
             "matched": matched,
-            "missing": missing
+            "missing": missing,
         }
 
-    # --------------------------------------------------
-    # SENIORITY
-    # --------------------------------------------------
-
-    def score_seniority(self, title):
-
+    @staticmethod
+    def score_seniority(title):
         title = title.lower()
-
-        # Strong fit for current career stage
-        if any(
-            word in title
-            for word in [
-                "junior",
-                "entry level",
-                "entry-level",
-                "graduate",
-                "intern",
-                "internship",
-                "apprentice",
-                "trainee",
-                "associate"
-            ]
-        ):
-
+        if any(term in title for term in (
+            "junior", "entry level", "entry-level", "graduate", "intern",
+            "internship", "apprentice", "trainee", "associate",
+        )):
             return 100
-
-        # No explicit seniority
-        if not any(
-            word in title
-            for word in [
-                "senior",
-                "staff",
-                "principal",
-                "lead",
-                "manager",
-                "director",
-                "head",
-                "vp"
-            ]
-        ):
-
-            return 90
-
-        # Senior roles receive a penalty
         if "senior" in title:
-
             return 45
-
-        if any(
-            word in title
-            for word in [
-                "staff",
-                "principal",
-                "lead"
-            ]
-        ):
-
+        if any(term in title for term in ("staff", "principal", "lead")):
             return 25
-
-        if any(
-            word in title
-            for word in [
-                "manager",
-                "director",
-                "head",
-                "vp"
-            ]
-        ):
-
+        if any(term in title for term in ("manager", "director", "head", "vp")):
             return 10
+        return 90
 
-        return 50
+    @staticmethod
+    def career_goal_score(title):
+        normalised = title.lower()
+        if any(excluded in normalised for excluded in EXCLUDED_CAREERS):
+            return 0
+        return 100 if any(target in normalised for target in TARGET_CAREERS) else 0
 
-    # --------------------------------------------------
-    # CAREER GOAL
-    # --------------------------------------------------
+    @staticmethod
+    def _recommendation(overall_score):
+        if overall_score >= 85:
+            return "Strong Match"
+        if overall_score >= 70:
+            return "Good Match"
+        if overall_score >= 55:
+            return "Potential Match"
+        if overall_score > 0:
+            return "Weak Match"
+        return "Reject - role is not aligned"
 
-    def career_goal_score(self, title):
-
-        title = title.lower()
-
-        for excluded in EXCLUDED_CAREERS:
-
-            if excluded.lower() in title:
-
-                return 0
-
-        for target in TARGET_CAREERS:
-
-            if target.lower() in title:
-
-                return 100
-
-        return 40
-
-    # --------------------------------------------------
-    # MAIN SCORE
-    # --------------------------------------------------
+    def _result(self, *, overall_score, role_result, career_goal_score,
+                skill_result, seniority_score):
+        role_match = role_result["score"]
+        return {
+            "overall_score": overall_score,
+            "matched_role": role_result["role"],
+            "role_match": role_match,
+            "career_goal_score": career_goal_score,
+            "career_family": role_result.get("family"),
+            "role_reason": role_result.get("reason", ""),
+            "reason": role_result.get("reason", ""),
+            "skills_score": skill_result["score"],
+            # The profile does not yet have structured job-requirement models
+            # for these dimensions. Report explicit neutral values instead of
+            # inventing candidate history or silently changing the schema.
+            "experience_score": 0,
+            "education_score": 0,
+            "certification_score": 0,
+            "target_role_score": role_match,
+            "seniority_score": seniority_score,
+            "matched_skills": skill_result["matched"],
+            "missing_skills": skill_result["missing"],
+            "recommendation": self._recommendation(overall_score),
+        }
 
     def score(self, job):
+        if not isinstance(job, Job):
+            raise TypeError(
+                "CandidateScorer.score expects a modules.discovery.job.Job object"
+            )
 
         title = job.title or ""
-
         role_result = self.role_matcher.score(title)
-
-        role_match = role_result["score"]
-
-        matched_role = role_result["role"]
-
-        career_family = role_result.get("family")
-
-        role_reason = role_result.get(
-            "reason",
-            ""
-        )
-
-        career_goal_score = self.career_goal_score(
-            title
-        )
-
-        # --------------------------------------------------
-        # ROLE ALIGNMENT GATE
-        # --------------------------------------------------
-
-        if role_match == 0:
-
-            return {
-                "overall_score": 0,
-
-                "matched_role": None,
-
-                "role_match": 0,
-
-                "career_goal_score":
-                    career_goal_score,
-
-                "career_family":
-                    career_family,
-
-                "role_reason":
-                    role_reason,
-
-                "skills_score": 0,
-
-                "experience_score": 0,
-
-                "education_score": 0,
-
-                "certification_score": 0,
-
-                "target_role_score": 0,
-
-                "seniority_score": 0,
-
-                "matched_skills": [],
-
-                "missing_skills":
-                    job.skills,
-
-                "recommendation":
-                    "Reject - role is not aligned"
-            }
-
-        # --------------------------------------------------
-        # SKILLS
-        # --------------------------------------------------
-
         skill_result = self.score_skills(job)
+        seniority_score = self.score_seniority(title)
+        career_goal_score = self.career_goal_score(title)
 
-        skills_score = skill_result["score"]
-
-        # --------------------------------------------------
-        # SENIORITY
-        # --------------------------------------------------
-
-        seniority_score = self.score_seniority(
-            title
-        )
-
-        # --------------------------------------------------
-        # HARD REJECTION
-        # --------------------------------------------------
-
+        # Alignment is a hard gate. Matching SQL/Power BI/Excel cannot turn a
+        # software, cyber, management, or unrelated vacancy into a target job.
         if role_result["score"] == 0:
-
-            return {
-                "overall_score": 0,
-
-                "matched_role": None,
-
-                "role_match": 0,
-
-                "career_goal_score":
-                    career_goal_score,
-
-                "career_family":
-                    career_family,
-
-                "role_reason":
-                    role_reason,
-
-                "skills_score":
-                    skills_score,
-
-                "seniority_score":
-                    seniority_score,
-
-                "matched_skills":
-                    skill_result["matched"],
-
-                "missing_skills":
-                    skill_result["missing"],
-
-                "recommendation":
-                    "Reject - role is not aligned"
-            }
-
-        # --------------------------------------------------
-        # WEIGHTED SCORE
-        # --------------------------------------------------
+            return self._result(
+                overall_score=0,
+                role_result=role_result,
+                career_goal_score=career_goal_score,
+                skill_result=skill_result,
+                seniority_score=seniority_score,
+            )
 
         overall_score = round(
-
-            (role_match * 0.40)
-
-            +
-
-            (career_goal_score * 0.25)
-
-            +
-
-            (skills_score * 0.25)
-
-            +
-
-            (seniority_score * 0.10)
-
+            role_result["score"] * 0.40
+            + career_goal_score * 0.25
+            + skill_result["score"] * 0.25
+            + seniority_score * 0.10
         )
-
-        # --------------------------------------------------
-        # RECOMMENDATION
-        # --------------------------------------------------
-
-        if overall_score >= 85:
-
-            recommendation = "Strong Match"
-
-        elif overall_score >= 70:
-
-            recommendation = "Good Match"
-
-        elif overall_score >= 55:
-
-            recommendation = "Potential Match"
-
-        elif overall_score > 0:
-
-            recommendation = "Weak Match"
-
-        else:
-
-            recommendation = "Reject"
-
-        return {
-
-            "overall_score":
-                overall_score,
-
-            "matched_role":
-                matched_role,
-
-            "role_match":
-                role_match,
-
-            "career_goal_score":
-                career_goal_score,
-
-            "career_family":
-                career_family,
-
-            "role_reason":
-                role_reason,
-
-            "skills_score":
-                skills_score,
-
-            "seniority_score":
-                seniority_score,
-
-            "matched_skills":
-                skill_result["matched"],
-
-            "missing_skills":
-                skill_result["missing"],
-
-            "recommendation":
-                recommendation
-        }
+        return self._result(
+            overall_score=overall_score,
+            role_result=role_result,
+            career_goal_score=career_goal_score,
+            skill_result=skill_result,
+            seniority_score=seniority_score,
+        )

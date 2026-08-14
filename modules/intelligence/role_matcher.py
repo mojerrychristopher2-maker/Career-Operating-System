@@ -1,151 +1,95 @@
-from knowledge.role_weights import ROLE_WEIGHTS
-from knowledge.career_strategy import EXCLUDED_CAREERS
+import re
+
 from knowledge.career_families import CAREER_FAMILIES
+from knowledge.career_strategy import EXCLUDED_CAREERS, LEADERSHIP_TERMS
+from knowledge.role_weights import ROLE_WEIGHTS
 
 
 class RoleMatcher:
+    """Deterministically match a job title to Career OS's career strategy."""
 
     def __init__(self):
-
         self.role_weights = ROLE_WEIGHTS
         self.excluded_roles = EXCLUDED_CAREERS
         self.career_families = CAREER_FAMILIES
 
-    def _normalise(self, text):
+    @staticmethod
+    def _normalise(text):
+        return " ".join(re.sub(r"[^a-z0-9]+", " ", text.lower()).split())
 
-        return " ".join(
-            text.lower().replace("-", " ").split()
-        )
+    @staticmethod
+    def _contains_phrase(text, phrase):
+        return re.search(rf"(?<!\w){re.escape(phrase)}(?!\w)", text) is not None
 
     def _detect_family(self, title):
-
         title = self._normalise(title)
-
         matches = []
-
         for family, data in self.career_families.items():
-
-            score = 0
-
-            for keyword in data.get("primary", []):
-
-                keyword = self._normalise(keyword)
-
-                if keyword in title:
-                    score = max(
-                        score,
-                        data.get("weight", 0)
-                    )
-
-            for keyword in data.get("secondary", []):
-
-                keyword = self._normalise(keyword)
-
-                if keyword in title:
-                    score = max(
-                        score,
-                        data.get("weight", 0) * 0.5
-                    )
-
-            if score > 0:
-                matches.append(
-                    (family, score)
-                )
+            for phrase in data.get("primary", []):
+                if self._contains_phrase(title, self._normalise(phrase)):
+                    matches.append((family, data.get("weight", 0)))
+                    break
 
         if not matches:
             return None
-
-        matches.sort(
-            key=lambda x: x[1],
-            reverse=True
-        )
-
-        return matches[0][0]
+        return max(matches, key=lambda match: match[1])[0]
 
     def score(self, title):
-
-        original_title = title
-
-        title = self._normalise(title)
-
-        # -----------------------------------------
-        # HARD EXCLUSION
-        # -----------------------------------------
+        original_title = title or ""
+        title = self._normalise(original_title)
 
         for excluded in self.excluded_roles:
-
             excluded = self._normalise(excluded)
-
-            if excluded in title:
-
+            if self._contains_phrase(title, excluded):
                 return {
                     "role": None,
                     "family": self._detect_family(title),
                     "score": 0,
+                    "family_score": 0,
                     "reason": "Excluded role",
-                    "matched_keyword": excluded
+                    "matched_keyword": excluded,
+                    "title": original_title,
                 }
 
-        # -----------------------------------------
-        # ROLE MATCH
-        # -----------------------------------------
+        # A target phrase embedded in a leadership job is not an early-career
+        # vacancy. Senior IC positions intentionally remain eligible.
+        for leadership_term in LEADERSHIP_TERMS:
+            if leadership_term in title.split():
+                return {
+                    "role": None,
+                    "family": self._detect_family(title),
+                    "score": 0,
+                    "family_score": 0,
+                    "reason": "Leadership role is outside current target range",
+                    "matched_keyword": leadership_term,
+                    "title": original_title,
+                }
 
-        best_score = 0
-        matched_role = None
-        matched_keyword = None
-
-        for role, score in self.role_weights.items():
-
-            role_normalised = self._normalise(role)
-
-            if role_normalised in title:
-
-                if score > best_score:
-
-                    best_score = score
-                    matched_role = role
-                    matched_keyword = role_normalised
-
-        # -----------------------------------------
-        # FAMILY
-        # -----------------------------------------
+        direct_matches = [
+            (role, weight)
+            for role, weight in self.role_weights.items()
+            if self._contains_phrase(title, self._normalise(role))
+        ]
+        if direct_matches:
+            matched_role, score = max(direct_matches, key=lambda match: (match[1], len(match[0])))
+            family = self._detect_family(title)
+            return {
+                "role": matched_role,
+                "family": family,
+                "score": score,
+                "family_score": self.career_families.get(family, {}).get("weight", 0),
+                "matched_keyword": self._normalise(matched_role),
+                "reason": "Direct role match",
+                "title": original_title,
+            }
 
         family = self._detect_family(title)
-
-        # -----------------------------------------
-        # FAMILY BONUS
-        # -----------------------------------------
-
-        family_score = 0
-
-        if family:
-
-            family_score = (
-                self.career_families
-                .get(family, {})
-                .get("weight", 0)
-            )
-
-        # -----------------------------------------
-        # FINAL ROLE SCORE
-        # -----------------------------------------
-
-        final_score = best_score
-
         return {
-            "role": matched_role,
+            "role": None,
             "family": family,
-            "score": final_score,
-            "family_score": family_score,
-            "matched_keyword": matched_keyword,
-            "reason": (
-                "Direct role match"
-                if matched_role
-                else (
-                    "Career family match"
-                    if family
-                    else "No role match"
-                )
-            ),
-            "title": original_title
+            "score": 0,
+            "family_score": self.career_families.get(family, {}).get("weight", 0),
+            "matched_keyword": None,
+            "reason": "Career family match" if family else "No role match",
+            "title": original_title,
         }

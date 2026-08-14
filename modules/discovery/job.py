@@ -3,28 +3,16 @@ import re
 
 
 def normalize_url(url: str) -> str:
-    """
-    Convert Markdown-style URLs into plain URLs.
-
-    Example:
-        [https://example.com](https://example.com)
-
-    becomes:
-        https://example.com
-    """
-
+    """Return a plain HTTP(S) URL from normal or markdown-wrapped input."""
     if not url:
         return ""
 
     url = url.strip()
-
-    # Markdown link:
-    # [label](url)
-    match = re.fullmatch(r"\[.*?\]\((https?://.*?)\)", url)
-
-    if match:
-        return match.group(1).strip()
-
+    # Handles both ordinary Markdown links and Hermes-rendered values such as
+    # [@url:`https://example.test`](@url:`https://example.test`).
+    matches = re.findall(r"https?://[^\s\]\)`]+", url)
+    if matches:
+        return matches[-1].strip()
     return url
 
 

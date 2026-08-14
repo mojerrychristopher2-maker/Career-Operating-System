@@ -1,17 +1,10 @@
 TARGET_CAREERS = {
-
-    # -----------------------------------------
-    # TIER 1 — PRIMARY TARGETS
-    # -----------------------------------------
-
+    # Tier 1 — primary targets
     "business intelligence analyst": 100,
     "bi analyst": 100,
     "data analyst": 100,
 
-    # -----------------------------------------
-    # TIER 2 — STRONG TARGETS
-    # -----------------------------------------
-
+    # Tier 2 — strong targets
     "reporting analyst": 95,
     "analytics analyst": 95,
     "business analyst": 90,
@@ -20,10 +13,7 @@ TARGET_CAREERS = {
     "business intelligence developer": 90,
     "sql developer": 90,
 
-    # -----------------------------------------
-    # TIER 3 — RELATED TARGETS
-    # -----------------------------------------
-
+    # Tier 3 — related targets
     "data reporting analyst": 90,
     "data quality analyst": 85,
     "data operations analyst": 85,
@@ -36,17 +26,27 @@ TARGET_CAREERS = {
     "dashboard developer": 85,
     "data operations": 75,
 
-    # -----------------------------------------
-    # BROAD CAREER KEYWORDS
-    # -----------------------------------------
-
+    # Broad phrases are useful to discovery and description analysis, but not
+    # sufficient for direct role matching.
     "business intelligence": 75,
     "power bi": 70,
     "data visualization": 65,
 }
 
-EXCLUDED_CAREERS = {
+# RoleMatcher rejects these leadership titles for the current early-career
+# strategy.  Senior individual-contributor roles remain reviewable and are
+# handled by CandidateScorer's separate seniority dimension.
+LEADERSHIP_TERMS = {
+    "manager",
+    "director",
+    "head",
+    "vp",
+    "principal",
+    "staff",
+    "lead",
+}
 
+EXCLUDED_CAREERS = {
     "research engineer": 0,
     "machine learning": 0,
     "ml engineer": 0,
@@ -63,5 +63,4 @@ EXCLUDED_CAREERS = {
     "reinforcement learning": 0,
     "life sciences": 0,
     "chip design": 0,
-
 }
