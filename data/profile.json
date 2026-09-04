@@ -1,10 +1,11 @@
 {
   "name": "Mojerry Christopher Sehloka",
   "email": "mojerrychristopher2@gmail.com",
-  "phone": "+27664156720",
+  "phone": "+27 66 415 6720",
   "linkedin": "https://www.linkedin.com/in/mojery-sehloka-412322386/",
   "github": "https://github.com/mojerrychristopher2-maker",
-  "headline": "Data Analyst | Business Intelligence | Power BI | SQL | Python",
+  "headline": "Data Analyst | Business Intelligence | AI-Powered Automation",
+  "summary": "Data Analyst and Business Intelligence professional who turns messy, real-world data into dashboards, insights, and automated systems that save businesses time. Hands-on experience across the full analytics stack—Excel, SQL/MySQL, Power BI, Tableau, and Python—combined with practical expertise in AI-powered workflow automation (n8n, Zapier, Make) and AI agent development. Recently completed the Deloitte Australia Data Analytics Job Simulation, gaining practical experience in a client-facing consulting environment. Independently designed and built a personal AI-driven career automation platform end-to-end, demonstrating the ability to design, build, and ship complete data-to-action systems. Seeking a Data Analyst / BI role where analytical rigor and automation skill can create measurable business impact from day one.",
   "location": "Polokwane, Limpopo, South Africa",
   "target_roles": [
     "Data Analyst",
@@ -12,72 +13,126 @@
     "Business Intelligence Developer"
   ],
   "skills": [
-    "SQL",
-    "Python",
-    "Power BI",
     "Excel",
+    "Power BI",
     "Tableau",
-    "Git",
     "Power Query",
+    "Dashboard Design",
+    "SQL",
+    "MySQL",
+    "Python",
     "Data Cleaning",
-    "Data Visualization"
+    "Data Visualization",
+    "Data Modeling",
+    "Data Structures",
+    "Log Analysis",
+    "Exploratory Data Analysis",
+    "n8n",
+    "Zapier",
+    "Make",
+    "Workflow Automation",
+    "ChatGPT",
+    "Claude",
+    "Gemini",
+    "Microsoft Copilot",
+    "Prompt Engineering",
+    "AI Agents",
+    "Playwright",
+    "Pandas",
+    "Git",
+    "GitHub",
+    "VS Code",
+    "WSL",
+    "Ubuntu",
+    "REST APIs",
+    "Formal Communication",
+    "Problem Solving",
+    "Critical Thinking",
+    "Stakeholder Communication",
+    "Report Writing",
+    "Presentation Skills",
+    "Attention to Detail",
+    "Time Management",
+    "Business Analysis",
+    "Analytical Thinking",
+    "Data-Driven Decision Making"
   ],
   "education": [
-    "Bachelor of Arts (Humanities), University of Johannesburg"
+    "Bachelor of Arts, University of Johannesburg — Majors: Public Administration & Development Studies (2022–2026)",
+    "National Senior Certificate, Eagles Nest Christian School (2021)"
   ],
   "certifications": [
-    "Certification of Completion \u2013 Alex The Analyst Data Analyst Bootcamp",
-    "Career Boost with Power BI & AI \u2013 Professional Gen AI (2026)",
-    "Data Analytics & Visualization Using Python \u2013 INFNOVA"
+    "Certification of Completion – Alex The Analyst Data Analyst Bootcamp",
+    "Career Boost with Power BI & AI – Professional Gen AI (2026)",
+    "Data Analytics & Visualization Using Python – INFNOVA",
+    "Deloitte Australia Data Analytics Job Simulation – Forage (Certificate of Completion)"
   ],
   "projects": [
     {
-      "name": "Retail Sales Dashboard",
-      "tools": [
-        "Power BI",
-        "Excel"
-      ],
-      "keywords": [
-        "dashboard",
-        "kpi",
-        "business intelligence",
-        "visualization"
-      ],
-      "description": "Built an interactive sales dashboard to analyse revenue, profit, customer behaviour and regional performance."
+      "name": "Career OS - Personal AI Career Automation Platform",
+      "tools": ["Python", "Playwright", "n8n", "SQLite", "Git"],
+      "keywords": ["automation", "ai", "job discovery", "resume tailoring", "career"],
+      "description": "Independent end-to-end AI-driven career automation platform: automated job scraping and parsing with Playwright, AI-driven keyword/skill weighting and candidate-fit scoring, application memory and decision engine, and automated keyword-optimized resume, cover letter, and professional summary generation."
     },
     {
-      "name": "E-Commerce SQL Analysis",
-      "tools": [
-        "SQL",
-        "MySQL"
-      ],
-      "keywords": [
-        "sql",
-        "joins",
-        "analytics",
-        "reporting"
-      ],
-      "description": "Analysed an e-commerce dataset using SQL to answer business questions and generate insights."
+      "name": "Automated Analytics Reporter (n8n)",
+      "tools": ["n8n", "Python", "CSV"],
+      "keywords": ["automation", "data quality", "trend analysis", "reporting", "ai"],
+      "description": "End-to-end automated workflow that ingests a CSV dataset, profiles columns and data types, runs data-quality checks, detects trends and outliers, and generates an AI-written executive summary with automatic notifications."
     },
     {
-      "name": "Python Data Analysis",
-      "tools": [
-        "Python",
-        "Pandas"
-      ],
-      "keywords": [
-        "python",
-        "cleaning",
-        "analysis",
-        "automation"
-      ],
-      "description": "Cleaned and analysed datasets using Python, producing visualisations and business insights."
+      "name": "Gmail → AI → Task Automation (Zapier)",
+      "tools": ["Zapier", "Gmail", "Google Tasks"],
+      "keywords": ["automation", "email triage", "task management", "ai"],
+      "description": "Workflow that filters incoming Gmail messages, uses AI to classify whether action is required, and automatically creates prioritized Google Tasks—removing manual email triage."
+    },
+    {
+      "name": "Retail Sales Data Analysis (Excel)",
+      "tools": ["Excel", "Power Query"],
+      "keywords": ["retail", "kpi", "customer segmentation", "product performance", "visualization"],
+      "description": "Cleaned and analyzed retail sales data to surface KPI trends, customer segmentation, and product performance insights, delivered through Excel-based visual reporting."
+    },
+    {
+      "name": "E-Commerce Data Analysis (SQL/MySQL)",
+      "tools": ["SQL", "MySQL"],
+      "keywords": ["sql", "mysql", "customer behavior", "sales trends", "profitability", "joins"],
+      "description": "Wrote SQL queries against a MySQL e-commerce database to extract, aggregate, and analyze customer behavior, sales trends, and product profitability."
+    },
+    {
+      "name": "Café Sales Data Cleaning",
+      "tools": ["Excel", "Python"],
+      "keywords": ["data cleaning", "data quality", "missing values", "validation"],
+      "description": "Cleaned and prepared a 10,000-row dirty café sales dataset—identifying missing values, inconsistent formatting, and quality issues."
+    },
+    {
+      "name": "Sales & Operations Dashboard (Tableau)",
+      "tools": ["Tableau", "Excel"],
+      "keywords": ["dashboard", "tableau", "sales performance", "customer demographics", "operational kpi"],
+      "description": "Designed interactive dashboards visualizing sales performance, customer demographics, and operational KPIs."
+    },
+    {
+      "name": "AI & Agent Development",
+      "tools": ["Hermes Agent", "OpenRouter", "Gemini", "WhatsApp"],
+      "keywords": ["ai agents", "model routing", "scheduled tasks", "automation"],
+      "description": "Configured and operated an AI agent with WhatsApp integration, scheduled tasks, and multi-provider model routing (OpenRouter, Gemini)."
     }
   ],
   "experience": [
-    "Completed end-to-end data analytics portfolio projects using Excel, SQL, Power BI, Tableau, and Python, including data cleaning, transformation, exploratory data analysis, dashboard development, and business insight generation."
+    "Data Analytics Intern @ Decolabs — Cleaned, validated, and transformed multi-source datasets using Excel and SQL, improving data quality and reliability for downstream reporting",
+    "Data Analytics Intern @ Decolabs — Performed exploratory data analysis to uncover business trends, anomalies, and growth opportunities",
+    "Data Analytics Intern @ Decolabs — Designed and built interactive Power BI and Tableau dashboards to track KPIs for stakeholders",
+    "Data Analytics Intern @ Decolabs — Translated complex datasets into clear, actionable business reports and recommendations",
+    "Data Analytics Intern @ Decolabs — Maintained a professional, version-controlled GitHub portfolio documenting all project work",
+    "Deloitte Australia Data Analytics Job Simulation @ Forage — Analyzed a real-world business dataset and built an interactive dashboard using Tableau and Excel",
+    "Deloitte Australia Data Analytics Job Simulation @ Forage — Applied data modeling, data structures, and log analysis techniques to investigate a simulated business scenario",
+    "Deloitte Australia Data Analytics Job Simulation @ Forage — Practiced formal, client-ready communication by presenting technical findings clearly and confidently",
+    "Deloitte Australia Data Analytics Job Simulation @ Forage — Gained practical insight into the day-to-day work of a Data Analyst at Deloitte",
+    "Merchandiser (Part-time) @ Boxer Superstores — Maintained merchandising standards and inventory availability in a fast-paced retail environment",
+    "Merchandiser (Part-time) @ Boxer Superstores — Delivered consistent, high-quality customer service under time pressure",
+    "Merchandiser (Part-time) @ Boxer Superstores — Built foundational teamwork, communication, and organizational skills"
   ],
   "career_sites": [
+    "https://himalayas.app/jobs/api/search",
     "https://boards.greenhouse.io/anthropic",
     "https://jobs.lever.co/gohighlevel"
   ]

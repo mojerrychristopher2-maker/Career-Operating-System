@@ -24,6 +24,12 @@ class DiscoveryAgent:
                 print(f"No provider available for {careers_url}")
                 continue
 
-            jobs.extend(provider.discover())
+            try:
+                discovered = provider.discover()
+                jobs.extend(discovered)
+                print(f"Provider {careers_url}: {len(discovered)} jobs discovered")
+            except Exception as e:
+                print(f"Provider {careers_url} FAILED: {type(e).__name__}: {e}")
+                continue
 
         return jobs

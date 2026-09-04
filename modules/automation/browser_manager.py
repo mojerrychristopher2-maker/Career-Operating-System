@@ -23,10 +23,19 @@ class BrowserManager:
         self.page = self.browser.new_page()
 
     def open(self, url):
-        if self.page is None:
-            self.start()
-        self.page.goto(url, wait_until="domcontentloaded", timeout=60000)
-        return self.page
+            if self.page is None:
+                self.start()
+            # Retry navigation up to 3 times to handle transient Playwright connection issues
+            for attempt in range(3):
+                try:
+                    self.page.goto(url, wait_until="load", timeout=120000)
+                    return self.page
+                except Exception as e:
+                    if attempt == 2:
+                        raise e
+                    import time
+                    time.sleep(2)  # Brief pause before retry
+            return self.page
 
     def get_text(self):
         return self.page.locator("body").inner_text()

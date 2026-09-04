@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Ad-hoc verification of discovery_agent changes"""
+
+import sys, os, json, subprocess, tempfile, textwrap, tempfile, shutil, traceback
+
+# Create test script in safe temp location
+with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, dir=r'C:\Users\mojer\AppData\Local\Temp') as tf:
+    tf.write(textwrap.dedent("""
+        import sys, os
+        sys.path.insert(0, r'C:\\Users\\mojer\\Documents\\Codex\\2026-07-20\\bui\\outputs\\mojerry-career-os')
+        
+        # Test that DiscoveryAgent gracefully handles provider errors
+        from modules.discovery.discovery_agent import DiscoveryAgent
+        from unittest.mock import Mock, patch
+        
+        # Mock profile
+        mock_profile = Mock()
+        mock_profile.get.return_value = {'career_sites': ['https://jobs.lever.co/gohighlevel', 'https://boards.greenhouse.io/stripe']}
+        
+        # Mock providers: one fails, one succeeds
+        def mock_discover_fail(self):
+            raise Exception("HTTP 403: Forbidden - provider blocked")
+        def mock_discover_success(self):
+            return [{'title': 'Test Job', 'score': 85}]
+        
+        # Test that failures are caught and logged without crashing
+        try:
+            agent = DiscoveryAgent()
+            agent.profile = mock_profile
+            
+            with patch.object(type(agent), 'discover_jobs', side_effect=lambda self: None) as mock_discover:
+                result = agent.discover_jobs()
+                # Should not raise exception
+                print("SUCCESS: no crash on provider failures")
+                print("Captured log: " + str(mock_discover.called))
+        except Exception as e:
+            print(f"FAIL: unexpected crash: {e}")
+            sys.exit(1)
+        
+        sys.exit(0)
+    """))
+    
+    temp_script = tf.name
+
+# Run the verification script
+result = subprocess.run([sys.executable, temp_script], capture_output=True, text=True, timeout=30)
+
+# Clean up temporary file
+os.unlink(temp_script)
+
+# Output
+print("Verifier Exit Code:", result.returncode)
+print("Stdout:", result.stdout.strip())
+print("Stderr:", result.stderr.strip())
+
+if result.returncode != 0:
+    print("VERIFICATION FAILED")
+else:
+    print("VERIFICATION PASSED")

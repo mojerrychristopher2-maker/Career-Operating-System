@@ -20,7 +20,9 @@ class JobLinkExtractor:
 
             href = urljoin(page.url, href)
 
-            if "job-boards.greenhouse.io" not in href:
+            # Accept all Greenhouse board URL forms
+            # (legacy job-boards.greenhouse.io and current boards.greenhouse.io)
+            if "greenhouse.io" not in href:
                 continue
 
             if "/jobs/" not in href:
@@ -60,13 +62,21 @@ class JobLinkExtractor:
 
                 location = " ".join(lines[1:])
 
-            jobs.append({
+            # Derive company from the board URL (e.g. boards.greenhouse.io/{company}/jobs/...)
+            company = ""
+            try:
+                parts = href.split("greenhouse.io/", 1)
+                if len(parts) > 1:
+                    company = parts[1].split("/")[0]
+            except Exception:
+                company = ""
 
+            jobs.append({
                 "title": title,
 
                 "location": location,
 
-                "company": "Anthropic",
+                "company": company,
 
                 "url": href
 

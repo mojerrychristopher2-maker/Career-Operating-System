@@ -70,6 +70,24 @@ class RoleMatcher:
             for role, weight in self.role_weights.items()
             if self._contains_phrase(title, self._normalise(role))
         ]
+
+        # Inverted title order (e.g. "Analyst, Data Analytics" →
+        # "analyst data analytics") — retry with comma/slash segments
+        # reordered before giving up on a direct match.
+        if not direct_matches and ("," in original_title or "/" in original_title):
+            import re as _re
+            segments = [
+                s.strip() for s in _re.split(r"[,/]|\b(?:in|for)\b", original_title) if s.strip()
+            ]
+            reordered = " ".join(
+                " ".join(reversed(segments)).lower().split()
+            )
+            direct_matches = [
+                (role, weight)
+                for role, weight in self.role_weights.items()
+                if self._contains_phrase(reordered, self._normalise(role))
+            ]
+
         if direct_matches:
             matched_role, score = max(direct_matches, key=lambda match: (match[1], len(match[0])))
             family = self._detect_family(title)

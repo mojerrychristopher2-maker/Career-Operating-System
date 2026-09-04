@@ -5,3 +5,5 @@ requests
 beautifulsoup4
 playwright
 pandas
+python-docx
+google-genai

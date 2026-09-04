@@ -18,7 +18,7 @@ class JobCrawler:
         self.parser = RuleJobParser()
         self.repo = ApplicationRepository()
 
-    def crawl(self, careers_url):
+    def crawl(self, careers_url, max_cards=20, timeout=30):
         browser = BrowserManager()
         browser.start()
         quick_filter = QuickFilter()
@@ -27,7 +27,9 @@ class JobCrawler:
         try:
             browser.open(careers_url)
             job_cards = JobLinkExtractor().extract(browser.page)
-            print(f"\nFound {len(job_cards)} job cards.\n")
+            # Cap cards to avoid large-board timeout; preserve quality
+            job_cards = job_cards[:max_cards]
+            print(f"\nFound {len(job_cards)} job cards (capped at {max_cards}).\n")
 
             for job_card in job_cards:
                 title = job_card["title"]

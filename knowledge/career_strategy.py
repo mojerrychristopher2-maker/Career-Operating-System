@@ -26,6 +26,17 @@ TARGET_CAREERS = {
     "dashboard developer": 85,
     "data operations": 75,
 
+    # Tier 4 — adjacent titles commonly used by employers (verified gap:
+    # real boards list these variants; they align with profile skills)
+    "analytics engineer": 85,
+    "bi engineer": 85,
+    "business intelligence engineer": 85,
+    "analytics specialist": 80,
+    "data specialist": 80,
+    "reporting specialist": 80,
+    "bi support analyst": 80,
+    "product data analyst": 90,
+
     # Broad phrases are useful to discovery and description analysis, but not
     # sufficient for direct role matching.
     "business intelligence": 75,

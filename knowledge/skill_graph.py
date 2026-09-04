@@ -55,6 +55,15 @@ class SkillGraph:
         if required_skill.lower() in profile:
             return True
 
+        # Required skill is a variant of a core skill (e.g. "mysql" -> "sql"):
+        # match if any core skill the graph maps to this variant is in the profile.
+        required = required_skill.lower()
+        for core_skill, variants in self.graph.items():
+            if required == core_skill or required in variants:
+                if core_skill in profile:
+                    return True
+
+        # Fallback: original direction — required skill is itself a graph key
         related = self.related_skills(required_skill)
 
         for skill in related:

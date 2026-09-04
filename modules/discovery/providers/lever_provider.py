@@ -11,7 +11,7 @@ class LeverProvider(JobProvider):
         self.careers_url = careers_url
         self.parser = RuleJobParser()
 
-    def discover(self):
+    def discover(self, max_cards=20):
 
         browser = BrowserManager()
         browser.start()
@@ -59,8 +59,13 @@ class LeverProvider(JobProvider):
             )
 
             seen_urls = set()
+            opened = 0
 
             for item in raw_links:
+
+                # Cap page opens so large boards complete in bounded time.
+                if opened >= max_cards:
+                    break
 
                 url = item["url"]
 
@@ -71,6 +76,8 @@ class LeverProvider(JobProvider):
 
                 if url.startswith("/"):
                     url = "https://jobs.lever.co" + url
+
+                opened += 1
 
                 # --------------------------------------------------
                 # OPEN INDIVIDUAL JOB PAGE
