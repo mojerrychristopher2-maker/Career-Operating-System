@@ -114,5 +114,24 @@ class ProviderRouter:
         return self.providers.get(provider_key, self.providers["local"])
 
     def route(self, task: str, prompt: str, **kwargs) -> str:
-        provider = self.get_provider(task)
-        return provider.generate(prompt, **kwargs)
+        """Route to provider, falling back if unavailable. Honors availability."""
+        # Try preferred first
+        provider_key = self.routing.get(task, "openrouter_free")
+        provider = self.providers.get(provider_key, self.providers["local"])
+        if provider.health_check():
+            try:
+                return provider.generate(prompt, **kwargs)
+            except Exception:
+                pass
+        # Fallback chain: openrouter_free -> gemini -> local (always works)
+        for fallback_key in ["openrouter_free", "gemini", "local"]:
+            if fallback_key == provider_key:
+                continue
+            fallback = self.providers.get(fallback_key)
+            if fallback and fallback.health_check():
+                try:
+                    return fallback.generate(prompt, **kwargs)
+                except Exception:
+                    continue
+        # Last resort: deterministic local
+        return self.providers["local"].generate(prompt, **kwargs)
