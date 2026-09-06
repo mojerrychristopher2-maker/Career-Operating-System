@@ -121,13 +121,16 @@ class SystemDiagnostics:
             if no_title > 0:
                 issues.append({"type": "jobs_without_title", "count": no_title})
 
-            # Applications with no description
-            no_desc = conn.execute("""
-                SELECT COUNT(*) FROM applications
-                WHERE description IS NULL OR LENGTH(TRIM(description)) < 50
-            """).fetchone()[0]
-            if no_desc > 0:
-                issues.append({"type": "applications_without_description", "count": no_desc})
+            # Applications with weak description (optional — only if column exists)
+            try:
+                no_desc = conn.execute("""
+                    SELECT COUNT(*) FROM applications
+                    WHERE description IS NULL OR LENGTH(TRIM(COALESCE(description,''))) < 50
+                """).fetchone()[0]
+                if no_desc > 0:
+                    issues.append({"type": "applications_without_description", "count": no_desc})
+            except sqlite3.OperationalError:
+                pass  # column not present; skip quietly
 
             # Jobs with suspicious titles (parsing failure markers)
             bad_titles = conn.execute("""
