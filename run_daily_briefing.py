@@ -107,6 +107,43 @@ def build_briefing(run_discovery=True, top_n=10):
             add(f"    {job.url[:80]}")
         add("")
 
+        # Opportunity Intelligence (§9) — evaluate each eligible job
+        from modules.intelligence.opportunity_intelligence import OpportunityIntelligence
+        oi = OpportunityIntelligence(profile)
+        evaluated = []
+        for item in eligible[:8]:
+            result = oi.score_opportunity({
+                "title": item["job"].title,
+                "company": item["job"].company,
+                "location": item["job"].location,
+                "skills": item["details"].get("skills", []),
+                "page_text": item["job"].page_text,
+            })
+            result["title"] = item["job"].title
+            result["company"] = item["job"].company
+            result["url"] = item["job"].url
+            result["current_score"] = item["score"]
+            evaluated.append(result)
+
+        # Show strategic distinction: good fit vs good career opportunity
+        strategic_opportunities = [e for e in evaluated if e.get("good_opportunity") and not e.get("good_fit")]
+        good_fits = [e for e in evaluated if e.get("good_fit")]
+
+        if strategic_opportunities:
+            add("")
+            add("STRATEGIC OPPORTUNITIES (high long-term value > current fit)")
+            add("-" * 60)
+            for e in strategic_opportunities[:3]:
+                add(f"  {e['title']} @ {e['company']}")
+                add(f"    Score: {e['overall_score']} | Strategy: {e['career_trajectory']}% | Growth: {e['skill_growth_opportunity']}")
+                add(f"    Fit: {e.get('good_fit', False)} | Opportunity: {e.get('good_opportunity', False)}")
+                add(f"    Gaps: {e['missing_skills'][:3]} | Why strategic: {e['long_term_value']}% long-term value")
+        if good_fits:
+            add("")
+            add("GOOD CURRENT FIT (high skill match + experience)")
+            for e in good_fits[:3]:
+                add(f"  {e['title']} @ {e['company']}  score={e['overall_score']}  match={e['skill_match_pct']}%")
+
         # ---- SKILL GAPS (from real ranked jobs) ----
         gap_analyzer = SkillGapAnalyzer()
         gap_jobs = [{"score": {"missing_skills": item["details"]["missing_skills"]}}
@@ -154,9 +191,92 @@ def build_briefing(run_discovery=True, top_n=10):
             n8n_events.skill_gap_updated(gaps)
 
     add("=" * 55)
+    add("CAREER STRATEGY & INTELLIGENCE")
+    add("-" * 55)
+
+    # Run career intelligence analysis (always runs, no discovery dependency)
+    ci_result = None
+    try:
+        ci_profile = ProfileManager().get_all()
+        ci_result = analyze_career_intelligence(ci_profile)
+    except Exception as e:
+        add(f"  Career intelligence analysis unavailable: {e}")
+
+    if ci_result:
+        # Top career families
+        top_families = list(ci_result["career_families"].items())[:3]
+        if top_families:
+            add("TOP CAREER FAMILIES")
+            for fam_name, fam_data in top_families:
+                add(f"  {fam_name}: score={fam_data['score']}  "
+                    f"skill_match={fam_data['skill_match_pct']}%  "
+                    f"matched={', '.join(fam_data['matched_skills'][:3]) or '-'}")
+            add("")
+
+        # Career paths
+        paths = ci_result["recommendations"]["career_paths"]
+        if paths:
+            add("ADJACENT CAREER PATHS")
+            for path in paths[:4]:
+                add(f"  {path['role']}  "
+                    f"(current fit: {path['current_fit_pct']}%)  "
+                    f"{path['strategic_value']}")
+                add(f"    Why: {path['reason']}")
+                gaps = path.get("skill_gaps", [])
+                if gaps:
+                    add(f"    Key gaps: {', '.join(gaps[:4])}")
+            add("")
+
+        # Project recommendations
+        projects = ci_result["recommendations"]["project_recommendations"]
+        if projects:
+            add("PROJECT RECOMMENDATIONS")
+            for proj in projects[:3]:
+                add(f"  {proj['name']}  [{proj['difficulty']}] {proj['time_estimate']}")
+                add(f"    Covers {proj['gap_coverage_pct']}% of critical gaps  "
+                    f"Skills: {', '.join(proj['skills_gained'][:4])}")
+            add("")
+
+        # Immediate actions
+        actions = ci_result["recommendations"]["immediate_actions"]
+        if actions:
+            add("HIGHEST-VALUE ACTIONS")
+            for action in actions:
+                add(f"  [{action['priority']}] {action['action']}")
+                add(f"    {action['details']}  ({action['timeframe']})")
+            add("")
+
+        # Career Roadmap (strategic project recommendations)
+        try:
+            roadmap = build_roadmap(ci_profile)
+            if roadmap:
+                add("STRATEGIC ROADMAP")
+                add(f"  {roadmap['portfolio_note']}")
+                add("")
+                add("THREE MOST VALUABLE NEXT:")
+                for i, r in enumerate(roadmap["three_most_valuable_next"], 1):
+                    add(f"  {i}. {r['name']}  [{r['priority']}]  {r['time']}")
+                    add(f"     Why: {r['why']}")
+                    add(f"     Skills: {', '.join(r['skills_gained'][:4])}")
+                    gaps = [g for g in r.get("addresses_gaps", []) if g not in [s.lower() for s in ci_profile.get("skills", [])]]
+                    if gaps:
+                        add(f"     New gaps addressed: {', '.join(gaps[:3])}")
+                add("")
+                add(f"  Path: {roadmap['career_path_recommendation']}")
+                add("")
+        except Exception as e:
+            add(f"  Roadmap unavailable: {e}")
+            add("")
+
+    add("")
+    add("=" * 55)
     add("Prepared applications are NOT submitted automatically.")
     add("Review output/ documents before applying manually.")
     return "\n".join(lines)
+
+
+from modules.intelligence_v2.career_intelligence_engine import analyze_career_intelligence
+from modules.intelligence.career_roadmap_engine import build_roadmap
 
 
 def main():

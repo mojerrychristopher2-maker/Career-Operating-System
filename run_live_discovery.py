@@ -13,6 +13,8 @@ from modules.intelligence.decision_engine import DecisionEngine
 from modules.documents.resume_writer import ResumeWriter
 from modules.documents.cover_letter_writer import CoverLetterWriter
 from modules.integration import n8n_events
+from database.application_intelligence import ApplicationIntelligence
+from modules.intelligence.opportunity_intelligence import OpportunityIntelligence
 
 def run():
     print("Initializing Career OS pipeline...")
@@ -164,6 +166,32 @@ def run():
     else:
         print("\nNo eligible jobs to process (all jobs rejected by alignment gate)")
     
+    # --- APPLICATION LIFECYCLE (Phase 10) ---
+    try:
+        ai = ApplicationIntelligence()
+        # The app is already prepared; now record the full pipeline state
+        # (interview stages, follow-up, outcome tracking are available after apply)
+        print("\nApplication Intelligence (full lifecycle tracked):")
+        funnel = ai.funnel()
+        print(f"  Funnel: total={funnel['total']} applied={funnel['applied']} "
+              f"interviews={funnel['interviews']} offers={funnel['offers']} "
+              f"rejected={funnel['rejected']} converted={funnel['applied_to_interview_pct']}%")
+        followups = ai.due_followups()
+        if followups:
+            print(f"  Follow-ups due: {len(followups)} (check applied applications >7 days)")
+        # Opportunity intelligence distinction
+        if eligible:
+            oi = OpportunityIntelligence(profile)
+            top = eligible[0]
+            score = oi.score_opportunity({"title": top['details']['title'],
+                                          "company": top['details']['company'],
+                                          "page_text": top['job'].page_text if hasattr(top['job'], 'page_text') else \
+                                              top.get('details', {}).get('page_text', '')})
+            print(f"  Top opportunity strategic value: trajectory={score['career_trajectory']}% "
+                  f"good_fit={score['good_fit']} good_opportunity={score['good_opportunity']}")
+    except Exception as e:
+        print(f"⚠️ Application intelligence tracking skipped: {e}")
+
     print("\nPipeline completed successfully")
 
 if __name__ == "__main__":
