@@ -1048,7 +1048,7 @@ def handle_query(q: str) -> str:
 
     if any(t in q for t in ["focus", "this week", "priority", "next", "action"]):
         actions = ci.get("recommendations", {}).get("immediate_actions", [])
-        apps = ci.get("profile_summary", {}).get("total_apps", 56)
+        apps = ci.get("profile_summary", {}).get("total_apps", 57)
         gaps = ci.get("gap_analysis", {}).get("critical_gaps", [])[:3]
         gap_names = ", ".join(g["skill"] for g in gaps)
         high_count = len([a for a in actions if a.get("priority") == "HIGH"])
