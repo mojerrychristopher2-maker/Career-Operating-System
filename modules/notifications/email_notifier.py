@@ -43,7 +43,7 @@ class Emailer:
         with sqlite3.connect(db_path) as conn:
             conn.row_factory = sqlite3.Row
             rows = conn.execute("""
-                SELECT id, company, role, url, follow_up_date, status
+                SELECT id, company, title as role, url, follow_up_date, status
                 FROM applications
                 WHERE follow_up_date IS NOT NULL
                 AND follow_up_date <= ?
