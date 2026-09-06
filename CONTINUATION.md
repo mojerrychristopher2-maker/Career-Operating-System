@@ -27,3 +27,12 @@
 
 ## Next action when execution resumes
 Create automated cycle: briefing + discovery + diagnostics + health tracking. Log to provider_repair_log/test_results. After 2-3 stable runs → build browser-apply module.
+
+## §28 Critical Insight (2026-09-07)
+Current strategy is NOT working: 5 applications submitted, 0 responses. System has surfaced:
+- Analytics Engineer (57%) is a stronger path than user's current targets (Data/BI Analyst).
+- Resume B (72 match score, 100% interview rate) is available but not yet deployed.
+- Strategy failure detection: SelfImprovementEngine should retire/modify the resume strategy being used.
+Action required: apply Resume B to Analytics Engineer roles, adjust targeting, or change approach.
+This insight must be surfaced proactively in briefings and web dashboard.s
+Create automated cycle: briefing + discovery + diagnostics + health tracking. Log to provider_repair_log/test_results. After 2-3 stable runs → build browser-apply module.
